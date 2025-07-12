@@ -1,4 +1,4 @@
-const String kAppName = "ZoodTime";
+const String kAppName = "BorAfzo";
 const String kLoginWithEmail = "Login with your e-mail";
 const String kEmail = "Email";
 const String kEmailHint = "E-mail";
@@ -20,21 +20,16 @@ const String kLogout = "Logout";
 const String kCancel = 'Cancel';
 const String kAddNew = 'Add New';
 const String kDashboard = 'Dashboard';
+const String kManageReturns = 'Manage Returns';
+
+
 
 //routs================
-
 const String kAuthScreenRoute = '/';
 const String kDashboardScreenRoute = "/DashboardScreenRoute";
-const String kUserManagementScreenRoute = "/UserManagementScreenRoute";
-const String kSettingScreenRoute = "/SettingScreenRoute";
+const String kUserScreenRoute = "/UserScreenRoute";
+const String kCurrierScreenRoute = "/CurrierScreenRoute";
 const String kProfileScreenRoute = "/ProfileScreenRoute";
-const String kChannelManagementScreenRoute = "/ChannelManagementScreenRoute";
-const String kVideoManagementScreenRoute = "/VideoManagementScreenRoute";
-
-
-
-const String kSubscriptionScreenRoute = "/SubscriptionScreenRoute";
-const String kCalenderScreenRoute = "/CalenderScreenRoute";
-const String kSendOtpScreenRoute = '/SendOtpScreenRoute';
-const String kVerifyScreenRoute = '/VerifyScreenRoute';
-const String kSetNewPassScreenRoute = '/SetNewPassScreenRoute';
+const String kReturnScreenRoute = "/ReturnScreenRoute";
+const String kStoreScreenRoute = "/StoreScreenRoute";
+const String kJobScreenRoute = "/JobScreenRoute";

@@ -77,7 +77,7 @@ class _SideMenuState extends State<SideMenu> {
                       Get.offAllNamed(kAuthScreenRoute);
                     },
                     textSize: 16,
-                    color: kSecondaryColor,
+                    color: kPrimaryColor,
                     fontWeight: FontWeight.w700,
                     height: 56.h,
                   ),
@@ -145,6 +145,7 @@ class _SideMenuState extends State<SideMenu> {
                           child: GestureDetector(
                             onTap: () {
                               menuController.onItemTapped(0);
+                              Get.toNamed(kDashboardScreenRoute);
                             },
                             child: Container(
                               width: width,
@@ -193,20 +194,22 @@ class _SideMenuState extends State<SideMenu> {
                                           width:
                                               12.w,
                                         ),
-                                        Text(
-                                          kDashboard,
-                                          style: AppStyles.blackTextStyle()
-                                              .copyWith(
-                                                color:
-                                                    menuController
-                                                                .selectedIndex
-                                                                .value ==
-                                                            0
-                                                        ? kWhiteColor
-                                                        : kBlackTextColor1,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                        Flexible(
+                                          child: Text(
+                                            kDashboard,
+                                            style: AppStyles.blackTextStyle()
+                                                .copyWith(
+                                                  color:
+                                                      menuController
+                                                                  .selectedIndex
+                                                                  .value ==
+                                                              0
+                                                          ? kWhiteColor
+                                                          : kBlackTextColor1,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -224,6 +227,7 @@ class _SideMenuState extends State<SideMenu> {
                           child: GestureDetector(
                             onTap: () {
                               menuController.onItemTapped(1);
+                              Get.toNamed(kUserScreenRoute);
                             },
                             child: Container(
                               width: width,
@@ -304,6 +308,7 @@ class _SideMenuState extends State<SideMenu> {
                           child: GestureDetector(
                             onTap: () {
                               menuController.onItemTapped(2);
+                              Get.toNamed(kCurrierScreenRoute);
                             },
                             child: Container(
                               width: width,
@@ -385,6 +390,7 @@ class _SideMenuState extends State<SideMenu> {
                           child: GestureDetector(
                             onTap: () {
                               menuController.onItemTapped(3);
+                              Get.toNamed(kJobScreenRoute);
                             },
                             child: Container(
                               width: width,
@@ -432,19 +438,21 @@ class _SideMenuState extends State<SideMenu> {
                                           width:
                                           12.w,
                                         ),
-                                        Text(
-                                          kJobs,
-                                          style: AppStyles.blackTextStyle()
-                                              .copyWith(
-                                            color:
-                                            menuController
-                                                .selectedIndex
-                                                .value ==
-                                                3
-                                                ? kWhiteColor
-                                                : kBlackTextColor1,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
+                                        Flexible(
+                                          child: Text(
+                                            kJobs,
+                                            style: AppStyles.blackTextStyle()
+                                                .copyWith(
+                                              color:
+                                              menuController
+                                                  .selectedIndex
+                                                  .value ==
+                                                  3
+                                                  ? kWhiteColor
+                                                  : kBlackTextColor1,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -463,6 +471,7 @@ class _SideMenuState extends State<SideMenu> {
                           child: GestureDetector(
                             onTap: () {
                               menuController.onItemTapped(4);
+                              Get.toNamed(kStoreScreenRoute);
                             },
                             child: Container(
                               width: width,
@@ -543,6 +552,7 @@ class _SideMenuState extends State<SideMenu> {
                           child: GestureDetector(
                             onTap: () {
                               menuController.onItemTapped(5);
+                              Get.toNamed(kReturnScreenRoute);
                             },
                             child: Container(
                               width: width,
@@ -623,6 +633,7 @@ class _SideMenuState extends State<SideMenu> {
                           child: GestureDetector(
                             onTap: () {
                               menuController.onItemTapped(6);
+                              Get.toNamed(kProfileScreenRoute);
                             },
                             child: Container(
                               width: width,

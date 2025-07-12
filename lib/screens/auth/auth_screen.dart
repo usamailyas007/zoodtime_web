@@ -41,8 +41,8 @@ class AuthScreen extends GetView<AuthController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                          height: 73.h,width: 306.w,
-                          child: Image.asset(kFullLogo,fit: BoxFit.cover,)),
+                          height: 73.h,width: 75.w,
+                          child: Image.asset(kLogo,fit: BoxFit.cover,)),
                       SizedBox(height: 98.h,),
                       Text(kLoginWithEmail,style: AppStyles.blackTextStyle().copyWith(fontSize: 32, fontWeight: FontWeight.w500),),
                       SizedBox(height: 30.h,),

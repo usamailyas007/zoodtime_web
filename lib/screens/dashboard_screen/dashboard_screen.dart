@@ -158,219 +158,215 @@ class DashboardScreen extends GetView<DashboardController> {
         body: SizedBox(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          child: Stack(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SideMenu(),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.all(36.r),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+              const SideMenu(),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.all(36.r),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
                           children: [
-                            Column(
+                            Row(
                               children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      kWelcomeAdmin,
-                                      style: AppStyles.blackTextStyle()
-                                          .copyWith(
-                                            fontSize: 30.sp,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                    ),
-                                    Spacer(),
-                                    Container(
-                                      height: 32,
-                                      width: 32,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: kBorderColor,
-                                          width: 0.6
-                                        )
+                                Text(
+                                  kWelcomeAdmin,
+                                  style: AppStyles.blackTextStyle()
+                                      .copyWith(
+                                        fontSize: 30.sp,
+                                        fontWeight: FontWeight.w400,
                                       ),
-                                      child: Center(child: SvgPicture.asset(kNotiIcon,height: 15,width: 15,)),
-                                    ),
-                                    SizedBox(width: 12.w,),
-                                    SizedBox(
-                                      height: 50,
-                                      width: 50,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(100),
-                                          child: Image.asset(kPersonImage,fit: BoxFit.cover,)),
-                                    )
-                                  ],
                                 ),
-                                SizedBox(height: 32.h),
-                                Row(
-                                  children: [
-                                    insightContainer(
-                                      "Total Revenue",
-                                      "23 TJS",
-                                      kCurrencyIcon,
-                                    ),
-                                    SizedBox(width: 24.w,),
-                                    insightContainer(
-                                      "Total Users",
-                                      "89,935",
-                                      kDoubleUserIcon,
-                                    ),
-                                    SizedBox(width: 24.w,),
-                                    insightContainer(
-                                      "Total Couriers",
-                                      "89,935",
-                                      kUserIcon1,
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 47.h),
+                                Spacer(),
                                 Container(
+                                  height: 32,
+                                  width: 32,
                                   decoration: BoxDecoration(
-                                    color: kWhiteColor,
-                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(
+                                      color: kBorderColor,
+                                      width: 0.6
+                                    )
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: 8),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment
-                                                .spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Revenue",
-                                            style:
-                                                AppStyles.blackTextStyle()
-                                                    .copyWith(
-                                                      fontSize: 24.sp,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Obx(() => PopupMenuButton<String>(
-                                                onSelected: (value) {
-                                                  controller.updateBarChartByDayRange(value);
-                                                },
-                                                offset: Offset(0, 40),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                ),
-                                                color: kWhiteColor,
-                                                itemBuilder: (context) => [
-                                                  PopupMenuItem(value: 'Last 7 Days', child: Text('Last 7 Days',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
-                                                  PopupMenuItem(value: 'Last 14 Days', child: Text('Last 14 Days',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
-                                                  PopupMenuItem(value: 'Last 30 Days', child: Text('Last 30 Days',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
-                                                ],
-                                                child: Row(
-                                                  children: [
-                                                    Text(
-                                                      controller.selectedDayRange.value,
-                                                      style: AppStyles.blackTextStyle().copyWith(
-                                                        fontSize: 12.sp,
-                                                        fontWeight: FontWeight.w400,
-                                                      ),
-                                                    ),
-                                                    Icon(Icons.keyboard_arrow_down, size: 15),
-                                                  ],
-                                                ),
-                                              )),                                              ],
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 56.h),
-                                      Obx(
-                                            () => SizedBox(
-                                          height: 350.h,
-                                          child: BarChart(
-                                            BarChartData(
-                                              alignment: BarChartAlignment.spaceAround,
-                                              barTouchData: BarTouchData(enabled: false),
-                                              titlesData: FlTitlesData(
-                                                leftTitles: AxisTitles(
-                                                  sideTitles: SideTitles(
-                                                    showTitles: true,
-                                                    reservedSize: 45.w,
-                                                    interval: 20,
-                                                    getTitlesWidget: (value, meta) {
-                                                      return Text(
-                                                        '${value.toInt()}k',
-                                                        style: AppStyles.blackTextStyle().copyWith(
-                                                          fontSize: 14.sp,
-                                                          fontWeight: FontWeight.w400,
-                                                          color: kGreyShade11Color,
-                                                        ),
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                                bottomTitles: AxisTitles(
-                                                  sideTitles: SideTitles(
-                                                    showTitles: true,
-                                                    interval: 1,
-                                                    getTitlesWidget: (value, meta) {
-                                                      final int index = value.toInt();
-                                                      final data = controller.barChartData;
-                                                      if (index < data.length) {
-                                                        return Text(
-                                                          data[index].label,
-                                                          style: AppStyles.blackTextStyle().copyWith(
-                                                            fontSize: 13.sp,
-                                                            color: kGreyShade11Color,
-                                                          ),
-                                                        );
-                                                      }
-                                                      return const SizedBox.shrink();
-                                                    },
-                                                  ),
-                                                ),
-                                                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                              ),
-                                              gridData: FlGridData(show: false),
-                                              borderData: FlBorderData(show: false),
-                                              barGroups: List.generate(controller.barChartData.length, (index) {
-                                                final data = controller.barChartData[index];
-                                                return BarChartGroupData(
-                                                  x: index,
-                                                  barRods: [
-                                                    BarChartRodData(
-                                                      toY: data.value,
-                                                      color: kPrimaryColor,
-                                                      width: 14,
-                                                      borderRadius: BorderRadius.circular(20),
-                                                      backDrawRodData: BackgroundBarChartRodData(
-                                                        show: true,
-                                                        toY: data.max,
-                                                        color: Colors.grey.shade200,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                );
-                                              }),
-                                              maxY: controller.barChartData.map((e) => e.max).reduce((a, b) => a > b ? a : b),
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                                  child: Center(child: SvgPicture.asset(kNotiIcon,height: 15,width: 15,)),
+                                ),
+                                SizedBox(width: 12.w,),
+                                SizedBox(
+                                  height: 50,
+                                  width: 50,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(100),
+                                      child: Image.asset(kPersonImage,fit: BoxFit.cover,)),
+                                )
+                              ],
+                            ),
+                            SizedBox(height: 32.h),
+                            Row(
+                              children: [
+                                insightContainer(
+                                  "Total Revenue",
+                                  "23 TJS",
+                                  kCurrencyIcon,
+                                ),
+                                SizedBox(width: 24.w,),
+                                insightContainer(
+                                  "Total Users",
+                                  "89,935",
+                                  kDoubleUserIcon,
+                                ),
+                                SizedBox(width: 24.w,),
+                                insightContainer(
+                                  "Total Couriers",
+                                  "89,935",
+                                  kUserIcon1,
                                 ),
                               ],
                             ),
+                            SizedBox(height: 47.h),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: kWhiteColor,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment
+                                            .spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Revenue",
+                                        style:
+                                            AppStyles.blackTextStyle()
+                                                .copyWith(
+                                                  fontSize: 24.sp,
+                                                  fontWeight:
+                                                      FontWeight.w600,
+                                                ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          Obx(() => PopupMenuButton<String>(
+                                            onSelected: (value) {
+                                              controller.updateBarChartByDayRange(value);
+                                            },
+                                            offset: Offset(0, 40),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            color: kWhiteColor,
+                                            itemBuilder: (context) => [
+                                              PopupMenuItem(value: 'Last 7 Days', child: Text('Last 7 Days',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                              PopupMenuItem(value: 'Last 14 Days', child: Text('Last 14 Days',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                              PopupMenuItem(value: 'Last 30 Days', child: Text('Last 30 Days',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                            ],
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  controller.selectedDayRange.value,
+                                                  style: AppStyles.blackTextStyle().copyWith(
+                                                    fontSize: 12.sp,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                                Icon(Icons.keyboard_arrow_down, size: 15),
+                                              ],
+                                            ),
+                                          )),                                              ],
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 56.h),
+                                  Obx(
+                                        () => SizedBox(
+                                      height: 350.h,
+                                      child: BarChart(
+                                        BarChartData(
+                                          alignment: BarChartAlignment.spaceAround,
+                                          barTouchData: BarTouchData(enabled: false),
+                                          titlesData: FlTitlesData(
+                                            leftTitles: AxisTitles(
+                                              sideTitles: SideTitles(
+                                                showTitles: true,
+                                                reservedSize: 45.w,
+                                                interval: 20,
+                                                getTitlesWidget: (value, meta) {
+                                                  return Text(
+                                                    '${value.toInt()}k',
+                                                    style: AppStyles.blackTextStyle().copyWith(
+                                                      fontSize: 14.sp,
+                                                      fontWeight: FontWeight.w400,
+                                                      color: kGreyShade11Color,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                            bottomTitles: AxisTitles(
+                                              sideTitles: SideTitles(
+                                                showTitles: true,
+                                                interval: 1,
+                                                getTitlesWidget: (value, meta) {
+                                                  final int index = value.toInt();
+                                                  final data = controller.barChartData;
+                                                  if (index < data.length) {
+                                                    return Text(
+                                                      data[index].label,
+                                                      style: AppStyles.blackTextStyle().copyWith(
+                                                        fontSize: 13.sp,
+                                                        color: kGreyShade11Color,
+                                                      ),
+                                                    );
+                                                  }
+                                                  return const SizedBox.shrink();
+                                                },
+                                              ),
+                                            ),
+                                            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                          ),
+                                          gridData: FlGridData(show: false),
+                                          borderData: FlBorderData(show: false),
+                                          barGroups: List.generate(controller.barChartData.length, (index) {
+                                            final data = controller.barChartData[index];
+                                            return BarChartGroupData(
+                                              x: index,
+                                              barRods: [
+                                                BarChartRodData(
+                                                  toY: data.value,
+                                                  color: kPrimaryColor,
+                                                  width: 14,
+                                                  borderRadius: BorderRadius.circular(20),
+                                                  backDrawRodData: BackgroundBarChartRodData(
+                                                    show: true,
+                                                    toY: data.max,
+                                                    color: Colors.grey.shade200,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }),
+                                          maxY: controller.barChartData.map((e) => e.max).reduce((a, b) => a > b ? a : b),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ],
           ),

@@ -21,6 +21,7 @@ const String kCancel = 'Cancel';
 const String kAddNew = 'Add New';
 const String kDashboard = 'Dashboard';
 const String kManageReturns = 'Manage Returns';
+
 const String kManageJobs = 'Manage Jobs';
 const String kManageStore = 'Manage Store';
 

@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:icons_plus/icons_plus.dart';
-import '../../../utils/app_colors.dart';
 import '../../../utils/app_images.dart';
 import '../../../utils/app_styles.dart';
 import '../../custom_widgets/custom_button.dart';
 import '../../custom_widgets/custom_textfield.dart';
 import '../../utils/app_strings.dart';
-import '../sidemenu/sidemenu.dart';
 import 'controller/auth_controller.dart';
 
 class AuthScreen extends GetView<AuthController> {
   const AuthScreen({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +64,13 @@ class AuthScreen extends GetView<AuthController> {
                         ),
                       )),
                       SizedBox(height: 60.h),
-                      CustomButton(title: kLogin, onTap: (){
-                        // if(controller.emailController.text == "admin@gmail.com" && controller.passController.text == "admin123"){
-                          Get.toNamed(kDashboardScreenRoute);
-                        // }
-                      })
+                      Obx(() => CustomButton(
+                        title: kLogin,
+                        isLoading: controller.isLoading.value,
+                        onTap: () {
+                          controller.login();
+                        },
+                      )),
                     ],
                   ),
                 ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import '../../utils/app_colors.dart';
 import '../../utils/app_styles.dart';
 
@@ -17,6 +16,7 @@ class CustomButton extends StatelessWidget {
   final Color? borderColor;
   final String? icon;
   final FontWeight fontWeight;
+  final bool isLoading;
 
   const CustomButton({
     super.key,
@@ -32,6 +32,7 @@ class CustomButton extends StatelessWidget {
     this.borderColor,
     this.icon,
     this.fontWeight = FontWeight.w500,
+    this.isLoading = false,
   });
 
   @override
@@ -39,7 +40,7 @@ class CustomButton extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: onTap,
+        onTap: isLoading ? null : onTap,
         child: Container(
           height: height.h,
           width: width,
@@ -51,23 +52,33 @@ class CustomButton extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              icon != null
-                  ? Image.asset(icon!, height: 18, width: 18)
-                  : SizedBox.shrink(),
-              icon != null ? SizedBox(width: 10) : SizedBox.shrink(),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: AppStyles.whiteTextStyle().copyWith(
-                  fontSize: textSize,
-                  color: textColor,
-                  fontWeight: fontWeight,
-                ),
+          child: Center(
+            child: isLoading
+                ? SizedBox(
+              height: 24,
+              width: 24,
+              child: CircularProgressIndicator(
+                color: textColor,
+                strokeWidth: 2,
               ),
-            ],
+            )
+                : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null)
+                  Image.asset(icon!, height: 18, width: 18),
+                if (icon != null) SizedBox(width: 10),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: AppStyles.whiteTextStyle().copyWith(
+                    fontSize: textSize,
+                    color: textColor,
+                    fontWeight: fontWeight,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

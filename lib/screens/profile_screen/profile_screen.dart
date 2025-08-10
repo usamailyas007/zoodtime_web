@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -7,6 +9,7 @@ import '../../custom_widgets/custom_button.dart';
 import '../../custom_widgets/custom_textfield.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_images.dart';
+import '../../utils/helpers/configs.dart';
 import '../sidemenu/sidemenu.dart';
 import 'controller/profile_controller.dart';
 import 'package:flutter_svg/svg.dart';
@@ -29,19 +32,55 @@ class ProfileScreen extends GetView<ProfileController> {
           style: AppStyles.blackTextStyle().copyWith(
             fontSize: 12.sp,
             fontWeight: FontWeight.w400,
-            color: kGreyShade2Color
+            color: kGreyShade2Color,
           ),
         ),
         SizedBox(height: 6.h),
         CustomTextField(
           hintText: hintText,
-          contentPadding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w),
+          contentPadding: EdgeInsets.symmetric(
+            vertical: 12.h,
+            horizontal: 12.w,
+          ),
           prefix: prefix,
           width: widget,
           controller: controller,
         ),
       ],
     );
+  }
+
+  Widget profileImageWidget(String? imageUrl) {
+    if (kIsWeb) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(
+          imageUrl ?? '',
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(child: CircularProgressIndicator());
+          },
+          errorBuilder: (context, error, stackTrace) {
+            debugPrint('Image load error (web): $error');
+            return _uploadPlaceholder();
+          },
+        ),
+      );
+    } else {
+      return CachedNetworkImage(
+        imageUrl: imageUrl ?? '',
+        cacheManager: Configs.customCacheManager,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Center(child: CircularProgressIndicator(color: kPrimaryColor)),
+        errorWidget: (context, url, error) {
+          debugPrint("Image load error: $error");
+          return _uploadPlaceholder();
+        },
+      );
+    }
   }
 
   Widget _uploadPlaceholder() {
@@ -92,7 +131,6 @@ class ProfileScreen extends GetView<ProfileController> {
                             Padding(
                               padding: EdgeInsets.symmetric(vertical: 32.h),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
                                     children: [
@@ -120,15 +158,7 @@ class ProfileScreen extends GetView<ProfileController> {
                                             400.w,
                                             controller.fullNameController,
                                           ),
-                                          SizedBox(height: 16.h),
-                                          customField(
-                                            "Last Name",
-                                            "Usman",
-                                            SvgPicture.asset(kUserIcon1),
-                                            400.w,
-                                            controller.lastNameController,
-                                          ),
-                                          SizedBox(height: 16.h),
+                                          SizedBox(height: 40.h),
                                           customField(
                                             "Email",
                                             "usmanndako@gmail.com",
@@ -139,15 +169,29 @@ class ProfileScreen extends GetView<ProfileController> {
                                             400.w,
                                             controller.emailController,
                                           ),
+                                          SizedBox(height: 40.h),
+                                          customField(
+                                            "Price per kg",
+                                            "eg 10TJK",
+                                            Icon(
+                                              Icons.currency_exchange_outlined,
+                                              color: kGreyColor,
+                                            ),
+                                            400.w,
+                                            controller.priceController,
+                                          ),
                                         ],
                                       ),
-                                      SizedBox(width: 77.w,),
+                                      SizedBox(width: 77.w),
                                       GestureDetector(
                                         onTap:
                                             () => controller.pickImageFromWeb(),
                                         child: Obx(() {
                                           final imageBytes =
                                               controller.pickedImageBytes.value;
+
+                                          final imageUrl =
+                                              controller.appLogoUrl.value;
 
                                           return DottedBorder(
                                             borderType: BorderType.RRect,
@@ -156,41 +200,65 @@ class ProfileScreen extends GetView<ProfileController> {
                                             color: kGreyShade8Color,
                                             strokeWidth: 0.8,
                                             child: Container(
-                                              height: 200,
-                                              width: 200,
+                                              height: 170,
+                                              width: 170,
                                               decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
-                                              child: imageBytes != null
-                                                  ? Stack(
-                                                    children: [
-                                                      Image.memory(
-                                                                                                      imageBytes,
-                                                                                                      fit: BoxFit.cover,
-                                                                                                      width: double.infinity,
-                                                                                                      height: double.infinity,
-                                                                                                    ),
-                                                      Padding(
-                                                        padding: const EdgeInsets.only(top: 14, right: 14),
-                                                        child: Row(
-                                                          mainAxisAlignment: MainAxisAlignment.end,
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            MouseRegion(
-                                                              cursor: SystemMouseCursors.click,
-                                                              child: GestureDetector(
-                                                                onTap: () {
-                                                                  controller.pickedImageBytes.value = null;
-                                                                },
-                                                                child: const Icon(Icons.delete, color: kRedColor, size: 30),
-                                                              ),
+                                              child:
+                                                  imageBytes != null
+                                                      ? Stack(
+                                                        children: [
+                                                          Image.memory(
+                                                            imageBytes,
+                                                            fit: BoxFit.cover,
+                                                            width:
+                                                                double.infinity,
+                                                            height:
+                                                                double.infinity,
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets.only(
+                                                                  top: 14,
+                                                                  right: 14,
+                                                                ),
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .end,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                MouseRegion(
+                                                                  cursor:
+                                                                      SystemMouseCursors
+                                                                          .click,
+                                                                  child: GestureDetector(
+                                                                    onTap: () {
+                                                                      controller
+                                                                          .pickedImageBytes
+                                                                          .value = null;
+                                                                    },
+                                                                    child: const Icon(
+                                                                      Icons
+                                                                          .delete,
+                                                                      color:
+                                                                          kRedColor,
+                                                                      size: 30,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
-                                                          ],
-                                                        ),
+                                                          ),
+                                                        ],
                                                       )
-                                                    ],
-                                                  ) : _uploadPlaceholder(),
+                                                      : imageUrl != null
+                                                      ? profileImageWidget(imageUrl)
+                                                      : _uploadPlaceholder(),
                                             ),
                                           );
                                         }),
@@ -198,16 +266,17 @@ class ProfileScreen extends GetView<ProfileController> {
                                     ],
                                   ),
                                   SizedBox(height: 162.h),
-                                  Padding(
+                                  Obx(() => Padding(
                                     padding: const EdgeInsets.only(left: 100.0),
                                     child: CustomButton(
                                       title: "Update",
+                                      isLoading: controller.isLoading.value,
                                       onTap: () {
-
+                                        controller.updateProfile();
                                       },
                                       width: 400.w,
                                     ),
-                                  ),
+                                  ),)
                                 ],
                               ),
                             ),

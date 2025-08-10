@@ -1,11 +1,19 @@
+import 'dart:developer';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:get/get.dart';
+
+import '../../../services/user_services.dart';
 
 class DashboardController extends GetxController {
   var isMonthly = true.obs;
   var isMonthly1 = true.obs;
   var selectedStatus = 'Submitted'.obs;
   var selectedDayRange = 'Last 7 Days'.obs;
+  UserServices userServices = UserServices();
+  var totalUsers = '--'.obs;
+  var totalRevenue = '--'.obs;
+  var totalCouriers = '--'.obs;
 
   void updateStatus(String status) {
     selectedStatus.value = status;
@@ -20,13 +28,8 @@ class DashboardController extends GetxController {
     "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
   ];
 
-  // Chart Data
   var barChartData = <BarChartModel>[].obs;
 
-
-
-
-  // Chart Data Samples
   List<BarChartModel> _getWeeklyBarData() {
     return [
       BarChartModel(label: 'Mon', value: 70, max: 100),
@@ -38,9 +41,6 @@ class DashboardController extends GetxController {
       BarChartModel(label: 'Sun', value: 40, max: 100),
     ];
   }
-
-
-
 
   void updateBarChartByDayRange(String range) {
     selectedDayRange.value = range;
@@ -57,6 +57,7 @@ class DashboardController extends GetxController {
         break;
     }
   }
+
   List<BarChartModel> _get14DayBarData() {
     return List.generate(7, (i) {
       return BarChartModel(
@@ -77,11 +78,33 @@ class DashboardController extends GetxController {
     });
   }
 
+
+  getUserStats() async {
+    try {
+      var response = await userServices.getUserStats();
+
+      if (response != null) {
+
+        totalUsers.value = response['totalUsers'].toString();
+        totalCouriers.value = response['totalCouriers'].toString();
+        // totalRevenue.value = response['totalRevenue'].toString();
+
+        update();
+      } else {
+        log("User is Null============");
+      }
+
+    } catch (e) {
+      log("App settings error: $e");
+    }
+  }
+
+
   @override
   void onInit() {
     super.onInit();
     barChartData.value = _getWeeklyBarData();
-
+    getUserStats();
     // selectMonthly1();
   }
 }

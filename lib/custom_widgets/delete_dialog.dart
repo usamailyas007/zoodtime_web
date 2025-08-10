@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:zoodtime_admin/screens/user_screen/controller/user_controller.dart';
 import 'package:zoodtime_admin/utils/app_images.dart';
 
 import '../utils/app_colors.dart';
+import '../utils/app_strings.dart';
 import '../utils/app_styles.dart';
 import 'custom_button.dart';
 import 'custom_dialog.dart';
 
 class DeleteDialog extends StatelessWidget {
-  const DeleteDialog({super.key});
+  VoidCallback onTap;
+  DeleteDialog({super.key,required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    UserController controller = Get.put(UserController());
     return CustomDialog(
         width: 450.w,
         content: Padding(
@@ -47,10 +51,18 @@ class DeleteDialog extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomButton(title: "Cancel", onTap: (){
+                  CustomButton(
+                    title: "Cancel",
+                    onTap: (){
                     Get.back();
-                  },width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
-                  CustomButton(title: "Confirm Delete", onTap: (){},width: 140.w,height: 40.h,textSize: 14.sp,),
+                  },
+                    width: 78.w,
+                    height: 40.h,
+                    color: kWhiteColor,
+                    borderColor: kBorderColor3,
+                    textSize: 14.sp,
+                    textColor: kSecondaryColor,),
+                  Obx(() =>  CustomButton(title: "Confirm Delete", onTap: onTap,width: 140.w,height: 40.h,textSize: 14.sp,isLoading: controller.isEntityDelete.value,),)
                 ],
               ),
             ],

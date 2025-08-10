@@ -12,12 +12,15 @@ import '../../custom_widgets/custom_pagination.dart';
 import '../../custom_widgets/custom_textfield.dart';
 import '../../utils/app_strings.dart';
 import '../sidemenu/sidemenu.dart';
+import '../user_screen/controller/user_controller.dart';
 import 'controller/store_controller.dart';
 
 class StoreScreen extends GetView<StoreController> {
   const StoreScreen({super.key});
 
-  updateStatus(){
+  updateStatus(RxList<Map<String, dynamic>> list, String id){
+    UserController userController = Get.put(UserController());
+
     return CustomDialog(
         width: 450.w,
         content: Padding(
@@ -71,7 +74,7 @@ class StoreScreen extends GetView<StoreController> {
                         ),
                       ),
                     ),
-                    items: ["Suspend", "Active"]
+                    items: ["suspended", "active"]
                         .map((courier) => DropdownMenuItem<String>(
                       value: courier,
                       child: Text(courier,style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400,fontSize: 14),),
@@ -87,8 +90,22 @@ class StoreScreen extends GetView<StoreController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomButton(title: "Cancel", onTap: (){},width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
-                  CustomButton(title: "Update Now", onTap: (){},width: 134.w,height: 40.h,textSize: 14.sp,),
+                  CustomButton(title: "Cancel", onTap: (){
+                    Get.back();
+                  },width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
+                  Obx(() => CustomButton(title: "Update Now", onTap: ()async{
+
+                    bool success = await userController.updateStatus(Get.context, id, "store", list, controller.selectedUserStatus.value ?? '');
+                    if (success) {
+                      Future.delayed(Duration(milliseconds: 50), () {
+                        // if (Get.isDialogOpen ?? false) {
+                        //   Get.back();
+                        // }
+                        // Get.back();
+                      });
+                    }
+                  },width: 134.w,height: 40.h,textSize: 14.sp,isLoading: userController.isUpdateStatue.value,),)
+
                 ],
               ),
             ],
@@ -126,6 +143,7 @@ class StoreScreen extends GetView<StoreController> {
                 height: 40,
                 child: CustomTextField(
                   hintText: "Store name",
+                  controller: controller.storeNameController,
                   contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
                 ),
               ),
@@ -135,6 +153,7 @@ class StoreScreen extends GetView<StoreController> {
               SizedBox(
                 height: 40,
                 child: CustomTextField(
+                  controller: controller.taxIdController,
                   hintText: "Tax ID / Company Registration Number",
                   contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
                 ),
@@ -146,6 +165,7 @@ class StoreScreen extends GetView<StoreController> {
                 height: 40,
                 child: CustomTextField(
                   hintText: "ABC Delta",
+                  controller: controller.addressController,
                   contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
                 ),
               ),
@@ -156,6 +176,7 @@ class StoreScreen extends GetView<StoreController> {
                 height: 40,
                 child: CustomTextField(
                   hintText: "Phone",
+                  controller: controller.phNumberController,
                   contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
                 ),
               ),
@@ -166,6 +187,7 @@ class StoreScreen extends GetView<StoreController> {
                 height: 40,
                 child: CustomTextField(
                   hintText: "Email",
+                  controller: controller.emailController,
                   contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
                 ),
               ),
@@ -174,8 +196,22 @@ class StoreScreen extends GetView<StoreController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomButton(title: "Cancel", onTap: (){},width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
-                  CustomButton(title: "Add Store", onTap: (){},width: 105.w,height: 40.h,textSize: 14.sp,),
+                  CustomButton(title: "Cancel", onTap: (){
+                    Get.back();
+                    controller.clearFields();
+                  },width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
+                  Obx(() => CustomButton(title: "Add Store",
+                    onTap: ()async{
+                      bool success = await controller.addStore(Get.context);
+                      if (success) {
+                        Future.delayed(Duration(milliseconds: 50), () {
+                          if (Get.isDialogOpen ?? false) {
+                            Get.back();
+                          }
+                          Get.back();
+                        });
+                      }
+                    },width: 105.w,height: 40.h,textSize: 14.sp,isLoading: controller.isLoading.value,),)
                 ],
               ),
             ],
@@ -208,7 +244,7 @@ class StoreScreen extends GetView<StoreController> {
                           Row(
                             children: [
                               Text(
-                                kManageReturns,
+                                kManageStore,
                                 style: AppStyles.blackTextStyle()
                                     .copyWith(
                                   fontSize: 30.sp,
@@ -260,7 +296,6 @@ class StoreScreen extends GetView<StoreController> {
                                       height: 70.h,
                                       width: 0.3,
                                       color: kBorderColor2,
-
                                     ),
                                     Padding(
                                       padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -286,15 +321,16 @@ class StoreScreen extends GetView<StoreController> {
                                           Obx(() => PopupMenuButton<String>(
                                             onSelected: (value) {
                                               controller.selectedStatus.value = value;
-                                              controller.currentPage.value = 1;                                              },
+                                              controller.currentPage.value = 1;                                  },
                                             offset: Offset(0, 40),
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(10),
                                             ),
                                             color: kWhiteColor,
                                             itemBuilder: (context) => [
-                                              PopupMenuItem(value: 'Active', child: Text('Active',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
-                                              PopupMenuItem(value: 'Paused', child: Text('Paused',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                              PopupMenuItem(value: 'All', child: Text('All',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                              PopupMenuItem(value: 'active', child: Text('active',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                              PopupMenuItem(value: 'suspended', child: Text('suspended',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
                                             ],
                                             child: Row(
                                               children: [
@@ -323,185 +359,206 @@ class StoreScreen extends GetView<StoreController> {
                             ],
                           ),
                           SizedBox(height: 32.h),
-                          Obx(() => Stack(
-                            children: [
-                              Container(
-                                width: width,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(
-                                        color: kBorderColor1
-                                    )
+                          Obx(() {
+
+                            if (controller.isLoading1.value) {
+                              return Center(child: CircularProgressIndicator()); // Loader
+                            }
+
+                            if (controller.filteredStores.isEmpty) {
+                              return Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: Text("No Stores Found"),
                                 ),
-                                child: DataTable(
-                                  columnSpacing: 0,
-                                  headingRowHeight: 70,
-                                  dividerThickness: 0,
-                                  columns: [
-                                    DataColumn(
-                                      label: Flexible(
-                                        child: Text(
-                                          "Store ID",
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style:
-                                          AppStyles.blackTextStyle()
-                                              .copyWith(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: kBlueColor
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Flexible(
-                                        child: Text(
-                                          "Store Name",
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style:
-                                          AppStyles.blackTextStyle()
-                                              .copyWith(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: kBlueColor
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Flexible(
-                                        child: Text(
-                                          "Tax ID",
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style:
-                                          AppStyles.blackTextStyle()
-                                              .copyWith(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: kBlueColor
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Flexible(
-                                        child: Text(
-                                          "Phone",
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style:
-                                          AppStyles.blackTextStyle()
-                                              .copyWith(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: kBlueColor
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Flexible(
-                                        child: Text(
-                                          "Email",
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style:
-                                          AppStyles.blackTextStyle()
-                                              .copyWith(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: kBlueColor
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Flexible(
-                                        child: Text(
-                                          "Address",
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style:
-                                          AppStyles.blackTextStyle()
-                                              .copyWith(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: kBlueColor
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      headingRowAlignment:
-                                      MainAxisAlignment.center,
-                                      label: Flexible(
-                                        child: Text(
-                                          "Status",
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style:
-                                          AppStyles.blackTextStyle()
-                                              .copyWith(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: kBlueColor
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      headingRowAlignment:
-                                      MainAxisAlignment.center,
-                                      label: Flexible(
-                                        child: Text(
-                                          "Actions",
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style:
-                                          AppStyles.blackTextStyle()
-                                              .copyWith(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: kBlueColor
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  rows: controller.pagedStores.asMap().entries.map((entry) {
-                                    final i = entry.key;
-                                    final user = entry.value;
-                                    return _buildDataRow(
-                                        i,
-                                        user['id']!,
-                                        user['name']!,
-                                        user['taxId']!,
-                                        user['phone']!,
-                                        user['email']!,
-                                        user['address']!,
-                                        user['status']!,
-                                        context
-                                    );
-                                  }).toList(),
-                                  dataRowMaxHeight: 70,
-                                ),
+                              );
+                            }
+
+                            return Container(
+                              width: width,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                      color: kBorderColor1
+                                  )
                               ),
-                            ],
-                          ),),
+                              child: DataTable(
+                                columnSpacing: 0,
+                                headingRowHeight: 70,
+                                dividerThickness: 0,
+                                columns: [
+                                  DataColumn(
+                                    label: Flexible(
+                                      child: Text(
+                                        "Store ID",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style:
+                                        AppStyles.blackTextStyle()
+                                            .copyWith(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: kBlueColor
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Flexible(
+                                      child: Text(
+                                        "Store Name",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style:
+                                        AppStyles.blackTextStyle()
+                                            .copyWith(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: kBlueColor
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Flexible(
+                                      child: Text(
+                                        "Tax ID",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style:
+                                        AppStyles.blackTextStyle()
+                                            .copyWith(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: kBlueColor
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Flexible(
+                                      child: Text(
+                                        "Phone",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style:
+                                        AppStyles.blackTextStyle()
+                                            .copyWith(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: kBlueColor
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Flexible(
+                                      child: Text(
+                                        "Email",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style:
+                                        AppStyles.blackTextStyle()
+                                            .copyWith(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: kBlueColor
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Flexible(
+                                      child: Text(
+                                        "Address",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style:
+                                        AppStyles.blackTextStyle()
+                                            .copyWith(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: kBlueColor
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    headingRowAlignment:
+                                    MainAxisAlignment.center,
+                                    label: Flexible(
+                                      child: Text(
+                                        "Status",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style:
+                                        AppStyles.blackTextStyle()
+                                            .copyWith(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: kBlueColor
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    headingRowAlignment:
+                                    MainAxisAlignment.center,
+                                    label: Flexible(
+                                      child: Text(
+                                        "Actions",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style:
+                                        AppStyles.blackTextStyle()
+                                            .copyWith(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: kBlueColor
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                rows: controller.filteredStores.asMap().entries.map((entry) {
+                                  final i = entry.key;
+                                  final store = entry.value;
+                                  return _buildDataRow(
+                                    i,
+                                    ((controller.currentPage.value - 1) * controller.itemsPerPage + i + 1).toString(),
+                                    store['storeName'] ?? '',
+                                    store['taxId'] ?? '',
+                                    store['phone'] ?? '',
+                                    store['email'] ?? '',
+                                    store['address'] ?? '',
+                                    store['status'] ?? 'active',
+                                    store,
+                                    context,
+                                  );
+                                }).toList(),
+                                dataRowMaxHeight: 70,
+                              ),
+                            );
+                          },),
                           SizedBox(height: 35.h,),
                           Obx(() {
+
                             if (controller.filteredStores.isEmpty) {
                               return const SizedBox();
                             }
+
                             return CustomPagination(
                               currentPage: controller.currentPage.value,
-                              visiblePages: controller.visiblePageNumbers,
-                              onPrevious: controller.goToPreviousPage,
-                              onNext: controller.goToNextPage,
-                              onPageSelected: controller.goToPage,
+                              visiblePages: List.generate(controller.totalPages.value, (i) => i + 1),
+                              onPageSelected: (page) {
+                                controller.goToPage(page, context);
+                              },
+                              onNext: () {
+                                controller.goToNextPage(context);
+                              },
+                              onPrevious: () {
+                                controller.goToPreviousPage(context);
+                              },
                             );
                           }),
                         ],
@@ -517,7 +574,7 @@ class StoreScreen extends GetView<StoreController> {
     );
   }
 
-  DataRow _buildDataRow(int i,String id, String name, String taxId, String phone ,String email,String address, String status, context) {
+  DataRow _buildDataRow(int i,String id, String name, String taxId, String phone ,String email,String address, String status, Map<String, dynamic> store, context) {
     return DataRow(
       color: WidgetStateProperty.all(Colors.transparent),
       cells: [
@@ -559,7 +616,7 @@ class StoreScreen extends GetView<StoreController> {
               .copyWith(fontSize: 14.sp, ),
         )),
         DataCell(
-            Center(child: CustomButton(title: status,onTap: (){},height: 30.h,width: 129.w,textSize: 11.sp,borderRadius: 8,color: status == "Paused" ? kOrangeColor : kPrimaryColor,fontWeight: FontWeight.w600,))
+            Center(child: CustomButton(title: status,onTap: (){},height: 30,width: 129.w,textSize: 11.sp,borderRadius: 8,color: status == "suspended" ? kOrangeColor : kPrimaryColor,fontWeight: FontWeight.w600,))
         ),
         DataCell(
           Row(
@@ -569,7 +626,7 @@ class StoreScreen extends GetView<StoreController> {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTap: (){
-                    Get.dialog(updateStatus());
+                    Get.dialog(updateStatus(controller.stores, store['_id']));
                   },
                   child: CircleAvatar(
                     backgroundColor: kPurpleColor.withOpacity(0.1),
@@ -583,8 +640,19 @@ class StoreScreen extends GetView<StoreController> {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTap: (){
-                    Get.dialog(DeleteDialog());
-                  },
+                    Get.dialog(DeleteDialog(onTap: ()async{
+                      UserController userController = Get.put(UserController());
+                      bool success = await userController.deleteEntity(context, store['_id'], "store", controller.stores);
+                      if (success) {
+                        Future.delayed(Duration(milliseconds: 50), () {
+                          if (Get.isDialogOpen ?? false) {
+                            Get.back();
+                          }
+                          Get.back();
+                        });
+                      }
+                    },));
+                    },
                   child: CircleAvatar(
                     backgroundColor: kRedColor.withOpacity(0.1),
                     radius: 15,

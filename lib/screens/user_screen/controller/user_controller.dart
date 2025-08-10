@@ -1,165 +1,241 @@
+import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import '../../../custom_widgets/loading.dart';
+import '../../../services/user_services.dart';
 
 class UserController extends GetxController {
-  var selectedAccountType = 'Individual'.obs;
+  var selectedAccountType = 'All'.obs;
   final selectedStatus = RxnString();
+  var nameController = TextEditingController();
+  var companyNameController = TextEditingController();
+  var taxIdController = TextEditingController();
+  var phNumberController = TextEditingController();
+  var isLoading = false.obs;
+  var isEntityDelete = false.obs;
+  var isUpdateStatue = false.obs;
+  var isLoading1 = false.obs;
+  UserServices userServices = UserServices();
+  var users = <Map<String, dynamic>>[].obs;
+  var currentPage = 1.obs;
+  var totalPages = 1.obs;
+  final int itemsPerPage = 6;
 
   void selectStatus(String? courier) {
     selectedStatus.value = courier;
   }
 
-  var users = [
-    {
-      "id": "001",
-      "name": "Ali Rahmon",
-      "number": "+992 92 111 2233",
-      "companyName": "—",
-      "taxId": "—",
-      "accountType": "Individual",
-      "status": "Active"
-    },
-    {
-      "id": "002",
-      "name": "Sara Khan",
-      "number": "+92 300 4567890",
-      "companyName": "—",
-      "taxId": "—",
-      "accountType": "Individual",
-      "status": "Suspended"
-    },
-    {
-      "id": "003",
-      "name": "Ahmad Raza",
-      "number": "+92 333 1234567",
-      "companyName": "TechSoft Ltd.",
-      "taxId": "TX-90871",
-      "accountType": "Business",
-      "status": "Active"
-    },
-    {
-      "id": "004",
-      "name": "Mehreen Fatima",
-      "number": "+92 301 7896543",
-      "companyName": "—",
-      "taxId": "—",
-      "accountType": "Individual",
-      "status": "Suspended"
-    },
-    {
-      "id": "005",
-      "name": "Tariq Bashir",
-      "number": "+92 322 4567890",
-      "companyName": "Alpha Traders",
-      "taxId": "TX-55521",
-      "accountType": "Business",
-      "status": "Active"
-    },
-    {
-      "id": "006",
-      "name": "Nadia Yusuf",
-      "number": "+92 345 2223344",
-      "companyName": "—",
-      "taxId": "—",
-      "accountType": "Individual",
-      "status": "Suspended"
-    },
-    {
-      "id": "007",
-      "name": "Zain Ul Abideen",
-      "number": "+92 306 9876543",
-      "companyName": "Zain Logistics",
-      "taxId": "TX-77890",
-      "accountType": "Business",
-      "status": "Active"
-    },
-    {
-      "id": "008",
-      "name": "Faiza Mehmood",
-      "number": "+92 300 4433221",
-      "companyName": "—",
-      "taxId": "—",
-      "accountType": "Individual",
-      "status": "Suspended"
-    },
-    {
-      "id": "009",
-      "name": "Rashid Qamar",
-      "number": "+92 321 9988776",
-      "companyName": "Qamar Enterprises",
-      "taxId": "TX-44123",
-      "accountType": "Business",
-      "status": "Suspended"
-    },
-    {
-      "id": "010",
-      "name": "Lubna Ali",
-      "number": "+92 345 1122334",
-      "companyName": "—",
-      "taxId": "—",
-      "accountType": "Individual",
-      "status": "Active"
-    },
-    {
-      "id": "011",
-      "name": "Hamza Iqbal",
-      "number": "+92 336 8877665",
-      "companyName": "H-Tech Solutions",
-      "taxId": "TX-12089",
-      "accountType": "Business",
-      "status": "Active"
-    },
-  ].obs;
-
-  var currentPage = 1.obs;
-  final int itemsPerPage = 4;
-  final int pagesPerGroup = 4;
+  final int pagesPerGroup = 6;
 
   var searchQuery = ''.obs;
 
-  List get filteredUsers {
-    return users
-        .where((user) =>
-    (selectedAccountType.value == 'All' ||
-        user['accountType'] == selectedAccountType.value))
-        .toList();
+  List<Map<String, dynamic>> get filteredUsers {
+    final query = searchQuery.value.trim().toLowerCase();
+    List<Map<String, dynamic>> list = users;
+
+    if (selectedAccountType.value == 'Business') {
+      list = list
+          .where((u) => (u['companyName'] ?? '').toString().trim().isNotEmpty)
+          .toList();
+
+    } else if (selectedAccountType.value == 'Individual') {
+      list = list
+          .where((u) => (u['companyName'] ?? '').toString().trim().isEmpty)
+          .toList();
+    }
+
+    if (query.isNotEmpty) {
+      list = list
+          .where((u) =>
+      (u['name'] ?? '').toString().toLowerCase().contains(query) ||
+          (u['phone'] ?? '').toString().toLowerCase().contains(query))
+          .toList();
+    }
+
+    return list;
   }
 
-  List get pagedUsers {
-    final filtered = filteredUsers;
-
-    if (filtered.isEmpty) return [];
+  List<Map<String, dynamic>> get pagedUsers {
+    final list = filteredUsers;
+    if (list.isEmpty) return [];
 
     int start = (currentPage.value - 1) * itemsPerPage;
-    int end = start + itemsPerPage;
-    return filtered.sublist(start, end > filtered.length ? filtered.length : end);
-  }
+    if (start >= list.length) return []; // ✅ Prevent RangeError
 
-  int get totalPages => (filteredUsers.isEmpty)
-      ? 1
-      : (filteredUsers.length / itemsPerPage).ceil();
+    int end = start + itemsPerPage;
+    return list.sublist(start, end > list.length ? list.length : end);
+  }
 
   int get currentGroup => ((currentPage.value - 1) / pagesPerGroup).floor();
 
-  List<int> get visiblePageNumbers {
-    int startPage = currentGroup * pagesPerGroup + 1;
-    int endPage = (startPage + pagesPerGroup - 1).clamp(1, totalPages);
-    return List.generate(endPage - startPage + 1, (index) => startPage + index);
+  void clearFields() {
+    nameController.clear();
+    companyNameController.clear();
+    taxIdController.clear();
+    phNumberController.clear();
   }
 
-  void goToPage(int page) {
-    if (page >= 1 && page <= totalPages) currentPage.value = page;
-  }
-
-  void goToNextPage() {
-    if (currentPage.value < totalPages) {
-      currentPage.value++;
+  void goToPage(int page, context) {
+    if (page >= 1 && page <= totalPages.value) {
+      getBusinesses(context, page: page);
     }
   }
 
-  void goToPreviousPage() {
+  void goToNextPage(context) {
+    if (currentPage.value < totalPages.value) {
+      getBusinesses(context, page: currentPage.value + 1);
+    }
+  }
+
+  void goToPreviousPage(context) {
     if (currentPage.value > 1) {
-      currentPage.value--;
+      getBusinesses(context, page: currentPage.value - 1);
     }
+  }
+
+  addBusiness(context) async {
+    if (nameController.text.isEmpty ||
+        companyNameController.text.isEmpty ||
+        taxIdController.text.isEmpty ||
+        phNumberController.text.isEmpty) {
+      showToast(Get.overlayContext!, msg: "Please Fill Required Fields", duration: 2);
+      return false;
+    }
+
+    isLoading.value = true;
+    try {
+      var data = {
+        "name": nameController.text.trim(),
+        "companyName": companyNameController.text.trim(),
+        "taxId": taxIdController.text.trim(),
+        "phone": phNumberController.text.trim(),
+      };
+
+
+      var response = await userServices.addCompany(data);
+
+      if (response != null && response['message'] == "Company registered successfully") {
+        showToast(Get.overlayContext!, msg: "Business Added Successfully", duration: 3);
+        clearFields();
+
+        final newCompany = Map<String, dynamic>.from(response['company']);
+
+        if (currentPage.value == 1) {
+          users.insert(0, newCompany);
+
+          if (users.length > itemsPerPage) {
+            users.removeLast();
+          }
+        }
+        return true;
+
+      } else {
+        showToast(context, msg: response?['message'] ?? "addBusiness failed", duration: 2);
+        return false;
+
+      }
+    } catch (e) {
+      log("addBusiness error: $e");
+      return false;
+
+    } finally {
+      isLoading.value = false;
+
+    }
+  }
+
+  deleteEntity(context, String id, String entityType, List<Map<String, dynamic>> list) async {
+    isEntityDelete.value = true;
+    try {
+      var data = {
+        "entityType": entityType,
+        "id": id,
+      };
+
+      var response = await userServices.deleteEntity(data);
+
+      if (response != null) {
+        list.removeWhere((item) => item['_id'].toString() == id.toString());
+        showToast(Get.overlayContext!, msg: "Item Deleted Successfully", duration: 2);
+        return true;
+
+      } else {
+        showToast(context, msg: response?['message'] ?? "deletion failed", duration: 2);
+        return false;
+
+      }
+    } catch (e) {
+      return false;
+    } finally {
+      isEntityDelete.value = false;
+    }
+  }
+
+  updateStatus(context, String id, String entityType, RxList<Map<String, dynamic>> list, String status) async {
+    isUpdateStatue.value = true;
+    try {
+      var data = {
+        "entityType": entityType,
+        "id": id,
+        "status": status
+      };
+
+      var response = await userServices.toggleStatus(data);
+
+      if (response != null) {
+        int index = list.indexWhere((item) => item['_id'].toString() == id.toString());
+
+        if (index != -1) {
+          list[index]['status'] = status;
+          list.refresh();
+        }
+
+        Get.back();
+
+        showToast(Get.overlayContext!, msg: "Status Updated Successfully", duration: 2);
+        // return true;
+
+      } else {
+        showToast(context, msg: response?['message'] ?? "Status Updating failed", duration: 2);
+        // return false;
+
+      }
+    } catch (e) {
+      log("Status Updating error: $e");
+      isUpdateStatue.value = false;
+      // return false;
+    } finally {
+      isUpdateStatue.value = false;
+    }
+  }
+
+  getBusinesses(context, {int page = 1}) async {
+    isLoading1.value = true;
+    try {
+      var response = await userServices.getCompanies(page: page);
+
+      if (response != null && response['companies'] != null) {
+        users.value = List<Map<String, dynamic>>.from(response['companies']);
+
+        currentPage.value = response['page'] ?? 1;
+        totalPages.value = response['totalPages'] ?? 1;
+
+      } else {
+        showToast(context, msg: response?['message'] ?? "Failed to fetch businesses", duration: 2);
+      }
+    } catch (e) {
+      showToast(context, msg: "Error fetching businesses", duration: 2);
+    } finally {
+      isLoading1.value = false;
+    }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getBusinesses(Get.context, page: 1);
+    });
   }
 
 }

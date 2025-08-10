@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../../custom_widgets/custom_button.dart';
 import '../../custom_widgets/custom_dialog.dart';
+import '../../services/storage.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_images.dart';
 import '../../utils/app_strings.dart';
@@ -74,6 +75,7 @@ class _SideMenuState extends State<SideMenu> {
                   child: CustomButton(
                     title: "Yes Logout",
                     onTap: () {
+                      Storage.logout();
                       Get.offAllNamed(kAuthScreenRoute);
                     },
                     textSize: 16,

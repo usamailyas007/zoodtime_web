@@ -1,3 +1,4 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,12 +12,110 @@ import '../../custom_widgets/custom_button.dart';
 import '../../custom_widgets/custom_pagination.dart';
 import '../../utils/app_strings.dart';
 import '../sidemenu/sidemenu.dart';
+import '../user_screen/controller/user_controller.dart';
 import 'controller/return_controller.dart';
 
 class ReturnScreen extends GetView<ReturnController> {
   const ReturnScreen({super.key});
 
-  assignCurrier(){
+  customRow(title,detail){
+    return Row(
+      spacing: 10,
+      children: [
+        Text(title,style: AppStyles.blackTextStyle().copyWith(fontSize: 16.sp,fontWeight: FontWeight.w700)),
+        Text(detail,style: AppStyles.blackTextStyle().copyWith(fontSize: 16.sp,fontWeight: FontWeight.w400)),
+      ],
+    );
+  }
+
+  returnDetails(Map<String, dynamic> returns){
+    return CustomDialog(
+        width: 900.w,
+        content: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Return Details",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w600)),
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                        onTap: (){
+                          Get.back();
+                        },
+                        child: Icon(Icons.close,color: kSecondaryColor,size: 20,)),
+                  )
+                ],
+              ),
+              SizedBox(height: 24.h,),
+              Divider(
+                endIndent: 0,
+                indent: 0,
+                color: kBorderColor2,
+                thickness: 0.5,
+              ),
+              SizedBox(height: 24.h,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 20.w,
+                children: [
+                  Text("Status:",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w500,fontSize: 12.sp,color: kGreyColor)),
+                  CustomButton(title: returns['status'], onTap: (){},width: 90.w,height: 27.h,textSize: 11.sp,fontWeight: FontWeight.w500,color: kGreyShade16Color.withOpacity(0.25),borderColor: kGreyShade16Color,borderRadius: 10,textColor: kBlackTextColor,)
+                ],
+              ),
+              SizedBox(height: 24.h,),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10.h,
+                children: [
+                  customRow("Order ID:", returns['originalOrder']?['orderNumber'] ?? "--"),
+                  customRow("Client Name:", returns['user']['name'] ??"--", ),
+                  // customRow("Courier Name:", returns['originalOrder']?['courier']?['name'] ?? "--",),
+                  customRow("Order Type:", returns['originalOrder']?['orderType'] ?? "--"),
+                  customRow(
+                      "Pick up Address:",
+                      ((returns['originalOrder']?['pickupAddress']?['city'] != "" && returns['originalOrder']?['pickupAddress']?['housingNo'] != "")
+                          ? "${returns['originalOrder']?['pickupAddress']?['city'] ?? ''} ${returns['originalOrder']?['pickupAddress']?['housingNo'] ?? ''}".trim()
+                          : returns['originalOrder']?['storeAddress']?['address'] ?? "--")
+                  ),
+                  customRow("Drop off Address:", "${returns['originalOrder']?['deliveryAddress']?['city'] ?? ""}, ${returns['originalOrder']?['deliveryAddress']?['housingNo'] ?? "--"}",),
+                  customRow("Weight:", "${(returns['originalOrder']?['weightKg'] ?? '').toString()} kg"),
+                  customRow("Delivery Type:", returns['originalOrder']?['deliveryType']?? "--"),
+                  customRow("Return Reason:", returns['reason']?? "--"),
+                  customRow("Account Title:", returns['accountTitle'] ?? "--"),
+                  customRow("Bank Account:", returns['bankAccount'] ?? "--"),
+                ],
+              ),
+              SizedBox(height: 24.h,),
+              Divider(
+                endIndent: 0,
+                indent: 0,
+                color: kBorderColor2,
+                thickness: 0.5,
+              ),
+              SizedBox(height: 24.h,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomButton(title: "Cancel", onTap: (){
+                    Get.back();
+                  },width: 145.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
+                  CustomButton(title: "Assign Courier", onTap: (){
+                    Get.dialog(assignCurrier(returns['originalOrder']?['_id']));
+                  },width: 134.w,height: 40.h,textSize: 14.sp,),
+                ],
+              ),
+            ],
+          ),
+        )
+    );
+  }
+
+  assignCurrier(String id){
     return CustomDialog(
       width: 900.w,
         content: Padding(
@@ -45,40 +144,50 @@ class ReturnScreen extends GetView<ReturnController> {
               SizedBox(
                 height: 40.h,
                 child: Obx(() {
-                  return DropdownButtonFormField<String>(
-                    value: controller.selectedCourier.value,
-                    dropdownColor: kWhiteColor,
-                    hint: Text("Select couriers here",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400,fontSize: 14),),
+                  return DropdownButtonFormField2<String>(
+                    value: controller.selectedCourier.value.isEmpty
+                        ? null
+                        : controller.selectedCourier.value,
+                    isExpanded: true,
+                    dropdownStyleData: DropdownStyleData(
+                      maxHeight: 230,
+                      decoration: BoxDecoration(
+                        color: kWhiteColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    hint: Text(
+                      "Select couriers here",
+                      style: AppStyles.blackTextStyle().copyWith(
+                          fontWeight: FontWeight.w400, fontSize: 14),
+                    ),
                     decoration: InputDecoration(
-                      contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: kBorderColor1,
-                        ),
+                        borderSide: const BorderSide(color: kBorderColor1),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: kBorderColor1,
-                        ),
+                        borderSide: const BorderSide(color: kBorderColor1),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: kBorderColor1
-                        ),
+                        borderSide: const BorderSide(color: kBorderColor1),
                       ),
                     ),
-                    items: ["Courier 1", "Courier 2"]
-                        .map((courier) => DropdownMenuItem<String>(
-                      value: courier,
-                      child: Text(courier,style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400,fontSize: 14),),
+                    items: controller.couriersName
+                        .map((name) => DropdownMenuItem<String>(
+                      value: name,
+                      child: Text(
+                        name,
+                        style: AppStyles.blackTextStyle().copyWith(
+                            fontWeight: FontWeight.w400, fontSize: 14),
+                      ),
                     ))
                         .toList(),
                     onChanged: (value) {
-                      controller.selectCourier(value!);
+                      controller.selectCourier(value ?? '');
                     },
                   );
                 }),
@@ -87,8 +196,28 @@ class ReturnScreen extends GetView<ReturnController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomButton(title: "Cancel", onTap: (){},width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
-                  CustomButton(title: "Assign Courier", onTap: (){},width: 134.w,height: 40.h,textSize: 14.sp,),
+                  CustomButton(title: "Cancel", onTap: (){
+                    Get.back();
+                  },width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
+                  Obx(() => CustomButton(title: "Assign Courier",
+                    onTap: ()async{
+                      bool success = await controller.assignCourier(Get.context, id);
+                      if (success) {
+                        Get.back();
+                        Get.back();
+
+                        Future.delayed(Duration(milliseconds: 50), () {
+                          if (Get.isDialogOpen ?? false) {
+                            Get.back();
+                            Get.back();
+
+                          }
+                          Get.back();
+                          Get.back();
+                        });
+                      }
+                    },
+                    width: 134.w,height: 40.h,textSize: 14.sp,isLoading: controller.isLoading1.value,),)
                 ],
               ),
             ],
@@ -176,7 +305,6 @@ class ReturnScreen extends GetView<ReturnController> {
                                         height: 70.h,
                                         width: 0.3,
                                         color: kBorderColor2,
-
                                       ),
                                       Padding(
                                         padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -193,7 +321,6 @@ class ReturnScreen extends GetView<ReturnController> {
                                         height: 70.h,
                                         width: 0.3,
                                         color: kBorderColor2,
-
                                       ),
                                       Padding(
                                         padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -202,16 +329,17 @@ class ReturnScreen extends GetView<ReturnController> {
                                             Obx(() => PopupMenuButton<String>(
                                               onSelected: (value) {
                                                 controller.selectedStatus.value = value;
-                                                controller.currentPage.value = 1;                                              },
+                                                controller.currentPage.value = 1;
+                                                },
                                               offset: Offset(0, 40),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(10),
                                               ),
                                               color: kWhiteColor,
                                               itemBuilder: (context) => [
-                                                PopupMenuItem(value: 'Delivered', child: Text('Delivered',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                                PopupMenuItem(value: 'All', child: Text('All',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
                                                 PopupMenuItem(value: 'Pending', child: Text('Pending',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
-                                                PopupMenuItem(value: 'In Progress', child: Text('In Progress',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                                PopupMenuItem(value: 'Accepted', child: Text('Accepted',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
                                               ],
                                               child: Row(
                                                 children: [
@@ -237,7 +365,22 @@ class ReturnScreen extends GetView<ReturnController> {
                               ],
                             ),
                             SizedBox(height: 32.h),
-                            Obx(() => Stack(
+                            Obx(() {
+
+                              if (controller.isLoading.value) {
+                                return Center(child: CircularProgressIndicator()); // Loader
+                              }
+
+                              if (controller.filteredReturns.isEmpty) {
+                                return Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: Text("No Returns Found"),
+                                  ),
+                                );
+                              }
+
+                              return Stack(
                               children: [
                                 Container(
                                   width: width,
@@ -287,7 +430,7 @@ class ReturnScreen extends GetView<ReturnController> {
                                       DataColumn(
                                         label: Flexible(
                                           child: Text(
-                                            "From → To",
+                                            "Phone Number",
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
                                             style:
@@ -303,7 +446,7 @@ class ReturnScreen extends GetView<ReturnController> {
                                       DataColumn(
                                         label: Flexible(
                                           child: Text(
-                                            "Weight",
+                                            "Order Number",
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
                                             style:
@@ -355,14 +498,15 @@ class ReturnScreen extends GetView<ReturnController> {
                                     ],
                                     rows: controller.pagedReturns.asMap().entries.map((entry) {
                                       final i = entry.key;
-                                      final user = entry.value;
+                                      final returns = entry.value;
                                       return _buildDataRow(
                                           i,
-                                          user['id']!,
-                                          user['clientName']!,
-                                          user['fromTo']!,
-                                          user['weight']!,
-                                          user['status']!,
+                                          ((controller.currentPage.value - 1) * controller.itemsPerPage + i + 1).toString(),
+                                          returns['user']?['name']! ?? "--",
+                                          returns['user']?['phone']! ?? "--",
+                                          returns['originalOrder']?['orderNumber']! ?? "--",
+                                          returns['originalOrder']?['courierStatus']! ?? "--",
+                                          returns,
                                           context
                                       );
                                     }).toList(),
@@ -370,7 +514,7 @@ class ReturnScreen extends GetView<ReturnController> {
                                   ),
                                 ),
                               ],
-                            ),),
+                            );}),
                             SizedBox(height: 35.h,),
                             Obx(() {
                               if (controller.filteredReturns.isEmpty) {
@@ -379,10 +523,16 @@ class ReturnScreen extends GetView<ReturnController> {
 
                               return CustomPagination(
                                 currentPage: controller.currentPage.value,
-                                visiblePages: controller.visiblePageNumbers,
-                                onPrevious: controller.goToPreviousPage,
-                                onNext: controller.goToNextPage,
-                                onPageSelected: controller.goToPage,
+                                visiblePages: List.generate(controller.totalPages.value, (i) => i + 1),
+                                onPageSelected: (page) {
+                                  controller.goToPage(page, context);
+                                },
+                                onNext: () {
+                                  controller.goToNextPage(context);
+                                },
+                                onPrevious: () {
+                                  controller.goToPreviousPage(context);
+                                },
                               );
                             }),
                           ],
@@ -399,7 +549,7 @@ class ReturnScreen extends GetView<ReturnController> {
     );
   }
 
-  DataRow _buildDataRow(int i,String id, String name, String fromTo ,String weight,String status, context) {
+  DataRow _buildDataRow(int i,String id, String name, String fromTo ,String weight,String status, Map<String, dynamic> returns, context) {
     return DataRow(
       color: WidgetStateProperty.all(Colors.transparent),
       cells: [
@@ -437,6 +587,10 @@ class ReturnScreen extends GetView<ReturnController> {
               textSize: 12.sp,
               borderRadius: 8,
               fontWeight: FontWeight.w600,
+              borderColor: status == "Delivered" ?
+              kPrimaryColor :
+              status == "Pending" ? kOrangeColor :
+              kLightBlueColor,
               color: status == "Delivered" ?
               kPrimaryColor :
               status == "Pending" ? kOrangeColor :
@@ -450,8 +604,8 @@ class ReturnScreen extends GetView<ReturnController> {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTap: (){
-                    Get.dialog(assignCurrier());
-                  },
+                    Get.dialog(returnDetails(returns));
+                    },
                   child: CircleAvatar(
                     backgroundColor: kPurpleColor.withOpacity(0.1),
                     radius: 15,
@@ -464,7 +618,18 @@ class ReturnScreen extends GetView<ReturnController> {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTap: (){
-                    Get.dialog(DeleteDialog());
+                    Get.dialog(DeleteDialog(onTap: ()async{
+                      UserController userController = Get.put(UserController());
+                      bool success = await userController.deleteEntity(context, returns['_id'], "return", controller.returns);
+                      if (success) {
+                        Future.delayed(Duration(milliseconds: 50), () {
+                          if (Get.isDialogOpen ?? false) {
+                            Get.back();
+                          }
+                          Get.back();
+                        });
+                      }
+                    },));
                   },
                   child: CircleAvatar(
                     backgroundColor: kRedColor.withOpacity(0.1),

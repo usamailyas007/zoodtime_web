@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:zoodtime_admin/custom_widgets/loading.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_images.dart';
 import '../../../utils/app_styles.dart';
@@ -173,13 +174,18 @@ class DashboardScreen extends GetView<DashboardController> {
                           children: [
                             Row(
                               children: [
-                                Text(
-                                  kWelcomeAdmin,
-                                  style: AppStyles.blackTextStyle()
-                                      .copyWith(
-                                        fontSize: 30.sp,
-                                        fontWeight: FontWeight.w400,
-                                      ),
+                                GestureDetector(
+                                  onTap: (){
+                                    showToast(Get.overlayContext!, msg: "Welcome to your account", duration: 2,backColor: kPrimaryColor);
+                                  },
+                                  child: Text(
+                                    kWelcomeAdmin,
+                                    style: AppStyles.blackTextStyle()
+                                        .copyWith(
+                                          fontSize: 30.sp,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                  ),
                                 ),
                                 Spacer(),
                                 Container(
@@ -206,23 +212,23 @@ class DashboardScreen extends GetView<DashboardController> {
                             SizedBox(height: 32.h),
                             Row(
                               children: [
-                                insightContainer(
+                                Obx(() => insightContainer(
                                   "Total Revenue",
-                                  "23 TJS",
+                                  "${controller.totalRevenue.value} TJS",
                                   kCurrencyIcon,
-                                ),
+                                ),),
                                 SizedBox(width: 24.w,),
-                                insightContainer(
+                                Obx(() => insightContainer(
                                   "Total Users",
-                                  "89,935",
+                                  controller.totalUsers.value,
                                   kDoubleUserIcon,
-                                ),
+                                ),),
                                 SizedBox(width: 24.w,),
-                                insightContainer(
+                                Obx(() => insightContainer(
                                   "Total Couriers",
-                                  "89,935",
+                                  controller.totalCouriers.value,
                                   kUserIcon1,
-                                ),
+                                ),),
                               ],
                             ),
                             SizedBox(height: 47.h),

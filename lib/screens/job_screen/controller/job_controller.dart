@@ -1,163 +1,189 @@
+import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import '../../../custom_widgets/loading.dart';
+import '../../../services/user_services.dart';
 
 class JobController extends GetxController {
   var selectedStatus = ''.obs;
-  final selectedCourier = RxnString();
+  final selectedCourier = ''.obs;
+  UserServices userServices = UserServices();
+  var isLoading = false.obs;
+  var isLoading1 = false.obs;
+  var isUpdateStatus = false.obs;
 
-  void selectCourier(String? courier) {
+  void selectCourier(String courier) {
     selectedCourier.value = courier;
   }
-  var jobs = [
-    {
-      "id": "001",
-      "clientName": "Zeba Solutions",
-      "courierName": "Mustafa Karimov",
-      "deliveryType": "Store-to-Door",
-      "fromTo": "Dushanbe → Dushanbe",
-      "weight": "2.5kg",
-      "type": "Express",
-      "status": "Delivered"
-    },
-    {
-      "id": "002",
-      "clientName": "Tajik Motors",
-      "courierName": "Farid Ahmad",
-      "deliveryType": "Door-to-Door",
-      "fromTo": "Khujand → Dushanbe",
-      "weight": "3.0kg",
-      "type": "Standard",
-      "status": "Pending"
-    },
-    {
-      "id": "003",
-      "clientName": "GreenTech Pvt Ltd",
-      "courierName": "Suhrob Aliyev",
-      "deliveryType": "Store-to-Store",
-      "fromTo": "Kulob → Dushanbe",
-      "weight": "1.9kg",
-      "type": "Express",
-      "status": "In Progress"
-    },
-    {
-      "id": "004",
-      "clientName": "Himmat Logistics",
-      "courierName": "Zarif Davlatov",
-      "deliveryType": "Door-to-Store",
-      "fromTo": "Dushanbe → Bokhtar",
-      "weight": "4.1kg",
-      "type": "Standard",
-      "status": "Delivered"
-    },
-    {
-      "id": "005",
-      "clientName": "Smart Bazaar",
-      "courierName": "Alisher Murodov",
-      "deliveryType": "Store-to-Door",
-      "fromTo": "Gissar → Dushanbe",
-      "weight": "2.3kg",
-      "type": "Express",
-      "status": "Pending"
-    },
-    {
-      "id": "006",
-      "clientName": "Barkat Traders",
-      "courierName": "Ravshan Rahimov",
-      "deliveryType": "Door-to-Door",
-      "fromTo": "Dushanbe → Kulob",
-      "weight": "5.0kg",
-      "type": "Standard",
-      "status": "Delivered"
-    },
-    {
-      "id": "007",
-      "clientName": "MetroMart",
-      "courierName": "Jamshid Karimov",
-      "deliveryType": "Store-to-Store",
-      "fromTo": "Khujand → Khujand",
-      "weight": "3.7kg",
-      "type": "Express",
-      "status": "In Progress"
-    },
-    {
-      "id": "008",
-      "clientName": "Quick Courier",
-      "courierName": "Shavkat Usmonov",
-      "deliveryType": "Door-to-Door",
-      "fromTo": "Dushanbe → Istaravshan",
-      "weight": "2.8kg",
-      "type": "Standard",
-      "status": "Pending"
-    },
-    {
-      "id": "009",
-      "clientName": "Asia Electronics",
-      "courierName": "Bekzod Hamidov",
-      "deliveryType": "Store-to-Door",
-      "fromTo": "Tursunzoda → Dushanbe",
-      "weight": "4.5kg",
-      "type": "Express",
-      "status": "Delivered"
-    },
-    {
-      "id": "010",
-      "clientName": "Universal Textiles",
-      "courierName": "Ismoil Nazarov",
-      "deliveryType": "Door-to-Store",
-      "fromTo": "Dushanbe → Gissar",
-      "weight": "3.3kg",
-      "type": "Standard",
-      "status": "In Progress"
-    },
-  ].obs;
 
+  var jobs = <Map<String, dynamic>>[].obs;
+  var couriersName = <String>[].obs;
 
   var currentPage = 1.obs;
-  final int itemsPerPage = 4;
-  final int pagesPerGroup = 4;
+
+  var totalPages = 1.obs;
+
+  final int itemsPerPage = 6;
+
+  final int pagesPerGroup = 6;
 
   var searchQuery = ''.obs;
 
-  List get filteredJobs {
-    if (selectedStatus.value.isEmpty) return jobs;
-    return jobs.where((user) {
-      return user['status'] == selectedStatus.value;
-    }).toList();
+  List<Map<String, dynamic>> get filteredJobs {
+    final query = searchQuery.value.trim().toLowerCase();
+    List<Map<String, dynamic>> list = jobs.toList();
+
+    if (selectedStatus.value.isNotEmpty &&
+        selectedStatus.value != 'All') {
+      list = list
+          .where((u) => (u['status'] ?? '')
+          .toString()
+          .trim()
+          .toLowerCase() ==
+          selectedStatus.value.toLowerCase())
+          .toList();
+    }
+
+    if (query.isNotEmpty) {
+      list = list
+          .where((u) =>
+      (u['name'] ?? '').toString().toLowerCase().contains(query) ||
+          (u['phone'] ?? '').toString().toLowerCase().contains(query))
+          .toList();
+    }
+
+    return list;
   }
 
-  List get pagedJobs {
-    final filtered = filteredJobs;
-    if (filtered.isEmpty) return [];
+  List<Map<String, dynamic>> get pagedJobs {
+    final list = filteredJobs;
+    if (list.isEmpty) return [];
+
     int start = (currentPage.value - 1) * itemsPerPage;
-    int end = start + itemsPerPage;
-    return filtered.sublist(start, end > filtered.length ? filtered.length : end);
-  }
+    if (start >= list.length) return [];
 
-  int get totalPages => (filteredJobs.isEmpty)
-      ? 1
-      : (filteredJobs.length / itemsPerPage).ceil();
+    int end = start + itemsPerPage;
+    return list.sublist(start, end > list.length ? list.length : end);
+  }
 
   int get currentGroup => ((currentPage.value - 1) / pagesPerGroup).floor();
 
-  List<int> get visiblePageNumbers {
-    int startPage = currentGroup * pagesPerGroup + 1;
-    int endPage = (startPage + pagesPerGroup - 1).clamp(1, totalPages);
-    return List.generate(endPage - startPage + 1, (index) => startPage + index);
-  }
-
-  void goToPage(int page) {
-    if (page >= 1 && page <= totalPages) currentPage.value = page;
-  }
-
-  void goToNextPage() {
-    if (currentPage.value < totalPages) {
-      currentPage.value++;
+  void goToPage(int page, context) {
+    if (page >= 1 && page <= totalPages.value) {
+      currentPage.value = page;
+      getAllJobs(context, page: page);
     }
   }
 
-  void goToPreviousPage() {
+  void goToNextPage(context) {
+    if (currentPage.value < totalPages.value) {
+      getAllJobs(context, page: currentPage.value + 1);
+    }
+  }
+
+  void goToPreviousPage(context) {
     if (currentPage.value > 1) {
-      currentPage.value--;
+      getAllJobs(context, page: currentPage.value - 1);
     }
   }
+
+  getAllJobs(context, {int page = 1}) async {
+    isLoading.value = true;
+    try {
+      var response = await userServices.getAllOrders(page: page);
+
+      if (response != null && response['message'] == "Orders fetched successfully") {
+        List<Map<String, dynamic>> fetched = List<Map<String, dynamic>>.from(response['orders']);
+
+
+        jobs.value = fetched.toList();
+
+
+        currentPage.value = response['page'] ?? 1;
+        totalPages.value = response['totalPages'] ?? 1;
+
+      } else {
+        showToast(context, msg: response?['message'] ?? "Failed to fetch getAllJobs", duration: 2);
+      }
+    } catch (e) {
+      showToast(context, msg: "Error fetching getAllJobs", duration: 2);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  getAllCouriersName(context) async {
+
+    try {
+      var response = await userServices.getAllCouriersName();
+
+      if (response != null) {
+        List fetched = response['couriers'];
+
+        couriersName.value = fetched.map((e) => e['name'].toString()).toList();
+
+        couriersName.value = fetched
+            .map((e) => e['name'].toString())
+            .toSet()
+            .toList();
+
+      } else {
+        showToast(context, msg: response?['message'] ?? "Failed to fetch getAllJobs", duration: 2);
+      }
+
+    } catch (e) {
+      showToast(context, msg: "Error fetching getAllJobs", duration: 2);
+    }
+  }
+
+  assignCourier(context,String orderId) async {
+    if (selectedCourier.value.isEmpty) {
+      showToast(Get.overlayContext!,
+          msg: "Please Select Courier", duration: 2);
+      return false;
+    }
+
+    isLoading1.value = true;
+
+    try {
+      var data = {
+        "orderId": orderId,
+        "courierName": selectedCourier.value,
+      };
+
+      var response = await userServices.assignCourier(data);
+
+      if (response != null && response['message'] == "Courier assigned successfully,") {
+
+        int index = jobs.indexWhere((job) => job['_id'] == orderId);
+        if (index != -1) {
+          final updatedJob = Map<String, dynamic>.from(jobs[index]);
+          updatedJob['courier'] = {'name': selectedCourier.value};
+          jobs[index] = updatedJob;
+        }
+
+        jobs.refresh();
+
+
+      } else {
+        showToast(context, msg: response?['message'] ?? "Failed to assignCourier", duration: 2);
+      }
+
+    } catch (e) {
+      showToast(context, msg: "Error while assignCourier", duration: 2);
+    } finally {
+      isLoading1.value = false;
+    }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getAllJobs(Get.context, page: 1);
+      getAllCouriersName(Get.context,);
+    });
+  }
+
 
 }

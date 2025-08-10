@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:zoodtime_admin/custom_widgets/delete_dialog.dart';
+import 'package:zoodtime_admin/screens/user_screen/controller/user_controller.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_images.dart';
 import '../../../utils/app_styles.dart';
@@ -19,7 +20,7 @@ import 'controller/currier_controller.dart';
 class CurrierScreen extends GetView<CurrierController> {
   const CurrierScreen({super.key});
 
-  updateCourierSalaryStatus(){
+  updateCourierSalaryStatus(Map<String, dynamic> user){
     return CustomDialog(
         width: 450.w,
         content: Padding(
@@ -48,7 +49,9 @@ class CurrierScreen extends GetView<CurrierController> {
                 height: 40.h,
                 child: Obx(() {
                   return DropdownButtonFormField<String>(
-                    value: controller.selectedCourierStatus.value,
+                    value: controller.selectedCourierStatus.value.isEmpty
+                        ? null
+                        : controller.selectedCourierStatus.value,
                     dropdownColor: kWhiteColor,
                     hint: Text("Status",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400,fontSize: 14),),
                     decoration: InputDecoration(
@@ -73,7 +76,7 @@ class CurrierScreen extends GetView<CurrierController> {
                         ),
                       ),
                     ),
-                    items: ["Suspend", "Active"]
+                    items: ["suspended", "active"]
                         .map((courier) => DropdownMenuItem<String>(
                       value: courier,
                       child: Text(courier,style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400,fontSize: 14),),
@@ -92,7 +95,9 @@ class CurrierScreen extends GetView<CurrierController> {
                 height: 40.h,
                 child: Obx(() {
                   return DropdownButtonFormField<String>(
-                    value: controller.selectedSalaryStatus.value,
+                    value: controller.selectedSalaryStatus.value.isEmpty
+                        ? null
+                        : controller.selectedSalaryStatus.value,
                     dropdownColor: kWhiteColor,
                     hint: Text("Status",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400,fontSize: 14),),
                     decoration: InputDecoration(
@@ -117,7 +122,7 @@ class CurrierScreen extends GetView<CurrierController> {
                         ),
                       ),
                     ),
-                    items: ["Credited", "Pending"]
+                    items: ["credited", "pending"]
                         .map((courier) => DropdownMenuItem<String>(
                       value: courier,
                       child: Text(courier,style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400,fontSize: 14),),
@@ -133,10 +138,49 @@ class CurrierScreen extends GetView<CurrierController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomButton(title: "Cancel", onTap: (){
+
+                  CustomButton(
+                    title: "Cancel",
+                    onTap: (){
                     Get.back();
-                  },width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
-                  CustomButton(title: "Update Now", onTap: (){},width: 134.w,height: 40.h,textSize: 14.sp,),
+                  },
+                    width: 78.w,
+                    height: 40.h,
+                    color: kWhiteColor,
+                    borderColor: kBorderColor3,
+                    textSize: 14.sp,
+                    textColor: kSecondaryColor,),
+
+                  Obx(() => CustomButton(
+                    title: "Update Now",
+                    onTap: () async{
+
+                      if(controller.selectedCourierStatus.value.isNotEmpty &&
+                          controller.selectedSalaryStatus.value.isEmpty){
+
+                        await controller.updateStatus(Get.context, user['_id'], controller.selectedCourierStatus.value);
+
+                      } else if(controller.selectedCourierStatus.value.isEmpty &&
+                          controller.selectedSalaryStatus.value.isNotEmpty) {
+
+                        await controller.updateCourierStatus(Get.context, user['_id'], controller.selectedSalaryStatus.value);
+
+                      } else if(controller.selectedCourierStatus.value.isNotEmpty &&
+                          controller.selectedSalaryStatus.value.isNotEmpty) {
+
+                        await controller.updateStatus(Get.context, user['_id'], controller.selectedCourierStatus.value);
+                        await controller.updateCourierStatus(Get.context, user['_id'], controller.selectedSalaryStatus.value);
+
+                      }
+
+
+                    },
+                    width: 134.w,
+                    height: 40.h,
+                    textSize: 14.sp,
+                    isLoading: controller.isUpdateStatus.value,
+                  ),),
+
                 ],
               ),
             ],
@@ -174,6 +218,7 @@ class CurrierScreen extends GetView<CurrierController> {
                 height: 40,
                 child: CustomTextField(
                   hintText: "ABC",
+                  controller: controller.nameController,
                   contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
                 ),
               ),
@@ -184,6 +229,7 @@ class CurrierScreen extends GetView<CurrierController> {
                 height: 40,
                 child: CustomTextField(
                   hintText: "00000",
+                  controller: controller.phNumberController,
                   contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
                 ),
               ),
@@ -194,6 +240,7 @@ class CurrierScreen extends GetView<CurrierController> {
                 height: 40,
                 child: CustomTextField(
                   hintText: "ABC Delta",
+                  controller: controller.cityNameController,
                   contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
                 ),
               ),
@@ -206,7 +253,7 @@ class CurrierScreen extends GetView<CurrierController> {
                   return DropdownButtonFormField<String>(
                     value: controller.selectedType.value,
                     dropdownColor: kWhiteColor,
-                    hint: Text("Status",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400,fontSize: 14),),
+                    hint: Text("Type",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400,fontSize: 14),),
                     decoration: InputDecoration(
                       contentPadding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
@@ -248,6 +295,7 @@ class CurrierScreen extends GetView<CurrierController> {
                 height: 40,
                 child: CustomTextField(
                   hintText: "ABC Delta",
+                  controller: controller.salaryController,
                   contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
                 ),
               ),
@@ -258,8 +306,24 @@ class CurrierScreen extends GetView<CurrierController> {
                 children: [
                   CustomButton(title: "Cancel", onTap: (){
                     Get.back();
-                  },width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
-                  CustomButton(title: "Add Courier", onTap: (){},width: 120.w,height: 40.h,textSize: 14.sp,),
+                    controller.clearFields();
+                    },width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
+                  Obx(() => CustomButton(title: "Add Courier",
+                    onTap: ()async{
+                      bool success = await controller.addCourier(Get.context);
+                      if (success) {
+                        Future.delayed(Duration(milliseconds: 50), () {
+                          if (Get.isDialogOpen ?? false) {
+                            Get.back();
+                          }
+                          Get.back();
+                        });
+                      }
+                    },
+                    width: 120.w,
+                    height: 40.h,
+                    textSize: 14.sp,
+                    isLoading: controller.isLoading.value,),)
                 ],
               ),
             ],
@@ -325,9 +389,10 @@ class CurrierScreen extends GetView<CurrierController> {
                                 )
                               ],
                             ),
+
                             SizedBox(height: 32.h),
+
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Container(
                                   height: 70.h,
@@ -365,7 +430,6 @@ class CurrierScreen extends GetView<CurrierController> {
                                         height: 70.h,
                                         width: 0.3,
                                         color: kBorderColor2,
-
                                       ),
                                       Padding(
                                         padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -374,16 +438,22 @@ class CurrierScreen extends GetView<CurrierController> {
                                             Obx(() => PopupMenuButton<String>(
                                               onSelected: (value) {
                                                 controller.selectedTransportType.value = value;
-                                                controller.currentPage.value = 1;                                              },
+                                                controller.currentPage.value = 1;
+                                                // controller.totalPages.value = (controller.filteredCouriers.length / controller.itemsPerPage)
+                                                //     .ceil()
+                                                //     .clamp(1, double.infinity)
+                                                //     .toInt();
+                                                },
                                               offset: Offset(0, 40),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(10),
                                               ),
                                               color: kWhiteColor,
                                               itemBuilder: (context) => [
+                                                PopupMenuItem(value: 'All', child: Text('All',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
                                                 PopupMenuItem(value: 'Motorcycle', child: Text('Motorcycle',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
-                                                PopupMenuItem(value: 'Bicycle', child: Text('Bicycle',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
                                                 PopupMenuItem(value: 'Car', child: Text('Car',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                                PopupMenuItem(value: 'Truck', child: Text('Truck',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
                                               ],
                                               child: Row(
                                                 children: [
@@ -405,211 +475,245 @@ class CurrierScreen extends GetView<CurrierController> {
                                     ],
                                   ),
                                 ),
+                                Spacer(),
+                                Obx(() => CustomButton(
+                                  title: "Reset Salaries",
+                                  onTap: (){
+                                    controller.resetSalaries(context);
+                                  },
+                                  height: 40.h,
+                                  width: 150.w,
+                                  textSize: 14.sp,
+                                  isLoading: controller.isLoading2.value,
+                                ),),
+                                SizedBox(width: 20.w,),
                                 CustomButton(title: "+ Add Courier", onTap: (){
                                   Get.dialog(addCourier());
                                 },height: 40.h,width: 150.w,textSize: 14.sp,)
                               ],
                             ),
+
                             SizedBox(height: 32.h),
-                            Obx(() => Stack(
-                              children: [
-                                Container(
-                                  width: width,
-                                  decoration: BoxDecoration(
+
+                            Obx((){
+
+                              if (controller.isLoading1.value) {
+                                return Center(child: CircularProgressIndicator()); // Loader
+                              }
+
+                              if (controller.filteredCouriers.isEmpty) {
+                                return Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: Text("No Couriers Found"),
+                                  ),
+                                );
+                              }
+
+                              return Container(
+                                width: width,
+                                decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(15),
                                     border: Border.all(
-                                      color: kBorderColor1
+                                        color: kBorderColor1
                                     )
-                                  ),
-                                  child: DataTable(
-                                    columnSpacing: 0,
-                                    headingRowHeight: 70,
-                                    dividerThickness: 0,
-                                    columns: [
-                                      DataColumn(
-                                        label: Flexible(
-                                          child: Text(
-                                            "ID",
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                            AppStyles.blackTextStyle()
-                                                .copyWith(
-                                                fontSize: 14.sp,
-                                                fontWeight: FontWeight.w600,
-                                                color: kBlueColor
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Flexible(
-                                          child: Text(
-                                            "Name",
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                            AppStyles.blackTextStyle()
-                                                .copyWith(
-                                                fontSize: 14.sp,
-                                                fontWeight: FontWeight.w600,
-                                                color: kBlueColor
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Flexible(
-                                          child: Text(
-                                            "Phone",
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                            AppStyles.blackTextStyle()
-                                                .copyWith(
-                                                fontSize: 14.sp,
-                                                fontWeight: FontWeight.w600,
-                                                color: kBlueColor
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Flexible(
-                                          child: Text(
-                                            "City",
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                            AppStyles.blackTextStyle()
-                                                .copyWith(
-                                                fontSize: 14.sp,
-                                                fontWeight: FontWeight.w600,
-                                                color: kBlueColor
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Flexible(
-                                          child: Text(
-                                            "Transport Type",
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                            AppStyles.blackTextStyle()
-                                                .copyWith(
+                                ),
+                                child: DataTable(
+                                  columnSpacing: 0,
+                                  headingRowHeight: 70,
+                                  dividerThickness: 0,
+                                  columns: [
+                                    DataColumn(
+                                      label: Flexible(
+                                        child: Text(
+                                          "ID",
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style:
+                                          AppStyles.blackTextStyle()
+                                              .copyWith(
                                               fontSize: 14.sp,
                                               fontWeight: FontWeight.w600,
-                                                color: kBlueColor
-                                            ),
+                                              color: kBlueColor
                                           ),
                                         ),
                                       ),
-                                      DataColumn(
-                                        label: Flexible(
-                                          child: Text(
-                                            "Salary",
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                            AppStyles.blackTextStyle()
-                                                .copyWith(
-                                                fontSize: 14.sp,
-                                                fontWeight: FontWeight.w600,
-                                                color: kBlueColor
-                                            ),
+                                    ),
+                                    DataColumn(
+                                      label: Flexible(
+                                        child: Text(
+                                          "Name",
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style:
+                                          AppStyles.blackTextStyle()
+                                              .copyWith(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: kBlueColor
                                           ),
                                         ),
                                       ),
-                                      DataColumn(
-                                        headingRowAlignment:
-                                        MainAxisAlignment.center,
-                                        label: Flexible(
-                                          child: Text(
-                                            "Salary Status",
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                            AppStyles.blackTextStyle()
-                                                .copyWith(
-                                                fontSize: 14.sp,
-                                                fontWeight: FontWeight.w600,
-                                                color: kBlueColor
-                                            ),
+                                    ),
+                                    DataColumn(
+                                      label: Flexible(
+                                        child: Text(
+                                          "Phone",
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style:
+                                          AppStyles.blackTextStyle()
+                                              .copyWith(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: kBlueColor
                                           ),
                                         ),
                                       ),
-                                      DataColumn(
-                                        headingRowAlignment:
-                                        MainAxisAlignment.center,
-                                        label: Flexible(
-                                          child: Text(
-                                            "Status",
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                            AppStyles.blackTextStyle()
-                                                .copyWith(
-                                                fontSize: 14.sp,
-                                                fontWeight: FontWeight.w600,
-                                                color: kBlueColor
-                                            ),
+                                    ),
+                                    DataColumn(
+                                      label: Flexible(
+                                        child: Text(
+                                          "City",
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style:
+                                          AppStyles.blackTextStyle()
+                                              .copyWith(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: kBlueColor
                                           ),
                                         ),
                                       ),
-                                      DataColumn(
-                                        headingRowAlignment:
-                                        MainAxisAlignment.center,
-                                        label: Flexible(
-                                          child: Text(
-                                            "Actions",
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                            AppStyles.blackTextStyle()
-                                                .copyWith(
-                                                fontSize: 14.sp,
-                                                fontWeight: FontWeight.w600,
-                                                color: kBlueColor
-                                            ),
+                                    ),
+                                    DataColumn(
+                                      label: Flexible(
+                                        child: Text(
+                                          "Transport Type",
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style:
+                                          AppStyles.blackTextStyle()
+                                              .copyWith(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: kBlueColor
                                           ),
                                         ),
                                       ),
-                                    ],
-                                    rows: controller.pagedCurrier.asMap().entries.map((entry) {
-                                      final i = entry.key;
-                                      final user = entry.value;
-                                      return _buildDataRow(
-                                          i,
-                                          user['id']!,
-                                          user['name']!,
-                                          user['number']!,
-                                          user['city']!,
-                                          user['transportName']!,
-                                          user['salary']!,
-                                          user['salaryStatus']!,
-                                          user['status']!,
-                                          context
-                                      );
-                                    }).toList(),
-                                    dataRowMaxHeight: 70,
-                                  ),
+                                    ),
+                                    DataColumn(
+                                      label: Flexible(
+                                        child: Text(
+                                          "Salary",
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style:
+                                          AppStyles.blackTextStyle()
+                                              .copyWith(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: kBlueColor
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      headingRowAlignment:
+                                      MainAxisAlignment.center,
+                                      label: Flexible(
+                                        child: Text(
+                                          "Salary Status",
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style:
+                                          AppStyles.blackTextStyle()
+                                              .copyWith(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: kBlueColor
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      headingRowAlignment:
+                                      MainAxisAlignment.center,
+                                      label: Flexible(
+                                        child: Text(
+                                          "Status",
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style:
+                                          AppStyles.blackTextStyle()
+                                              .copyWith(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: kBlueColor
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      headingRowAlignment:
+                                      MainAxisAlignment.center,
+                                      label: Flexible(
+                                        child: Text(
+                                          "Actions",
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style:
+                                          AppStyles.blackTextStyle()
+                                              .copyWith(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: kBlueColor
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  rows: controller.filteredCouriers.asMap().entries.map((entry) {
+                                    final i = entry.key;
+                                    final user = entry.value;
+                                    return _buildDataRow(
+                                      i,
+                                      ((controller.currentPage.value - 1) * controller.itemsPerPage + i + 1).toString(),
+                                      user['name'] ?? '',
+                                      user['phone'] ?? '',
+                                      user['city'] ?? '',
+                                      user['transportType'].toString() ?? '',
+                                      user['salary'].toString() ?? '',
+                                      user['salaryStatus'] ?? 'Pending',
+                                      user['status'] ?? 'Active',
+                                      user,
+                                      context,
+                                    );
+                                  }).toList(),
+                                  dataRowMaxHeight: 70,
                                 ),
-                              ],
-                            ),),
+                              );
+                            }),
                             SizedBox(height: 35.h,),
                             Obx(() {
-                              if (controller.filteredCurrier.isEmpty) {
+
+                              if (controller.filteredCouriers.isEmpty) {
                                 return const SizedBox();
                               }
 
                               return CustomPagination(
                                 currentPage: controller.currentPage.value,
-                                visiblePages: controller.visiblePageNumbers,
-                                onPrevious: controller.goToPreviousPage,
-                                onNext: controller.goToNextPage,
-                                onPageSelected: controller.goToPage,
+                                visiblePages: List.generate(controller.totalPages.value, (i) => i + 1),
+                                onPageSelected: (page) {
+                                  controller.goToPage(page, context);
+                                },
+                                onNext: () {
+                                  controller.goToNextPage(context);
+                                },
+                                onPrevious: () {
+                                  controller.goToPreviousPage(context);
+                                },
                               );
                             }),
                           ],
@@ -626,7 +730,7 @@ class CurrierScreen extends GetView<CurrierController> {
     );
   }
 
-  DataRow _buildDataRow(int i,String id, String name, String phone ,String cName,String taxId,String acType, String salaryStatus, String status, context) {
+  DataRow _buildDataRow(int i,String id, String name, String phone ,String cName,String transportType,String salary, String salaryStatus, String status,Map<String, dynamic> user, context) {
     return DataRow(
       color: WidgetStateProperty.all(Colors.transparent),
       cells: [
@@ -656,22 +760,32 @@ class CurrierScreen extends GetView<CurrierController> {
               .copyWith(fontSize: 12.sp, fontWeight: FontWeight.w400),
         )),
         DataCell(Text(
-          taxId,
+          transportType,
           textAlign: TextAlign.center,
           style: AppStyles.blackTextStyle()
               .copyWith(fontSize: 12.sp, fontWeight: FontWeight.w400),
         )),
         DataCell(Text(
-          acType,
+          salary,
           textAlign: TextAlign.center,
           style: AppStyles.blackTextStyle()
               .copyWith(fontSize: 14.sp, ),
         )),
         DataCell(
-          Center(child: CustomButton(title: salaryStatus,onTap: (){},height: 30.h,width: 85.w,textSize: 11.sp,borderRadius: 8,color: salaryStatus == "Pending" ? kLightBlueColor : kPrimaryColor,))
+          Center(
+              child: CustomButton(
+                title: salaryStatus,
+                onTap: (){},
+                height: 30.h,
+                width: 85.w,
+                textSize: 11.sp,
+                borderRadius: 8,
+                color: salaryStatus == "pending" ? kLightBlueColor : kPrimaryColor,
+            borderColor: salaryStatus == "pending" ? kLightBlueColor : kPrimaryColor,
+              ))
         ),
         DataCell(
-          Center(child: CustomButton(title: status,onTap: (){},height: 30.h,width: 85.w,textSize: 11.sp,borderRadius: 8,color: status == "Suspended" ? kOrangeColor : kPrimaryColor,))
+          Center(child: CustomButton(title: status,onTap: (){},height: 30.h,width: 85.w,textSize: 11.sp,borderRadius: 8,color: status == "suspended" ? kOrangeColor : kPrimaryColor,))
         ),
         DataCell(
           Row(
@@ -681,7 +795,7 @@ class CurrierScreen extends GetView<CurrierController> {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTap: (){
-                    Get.dialog(updateCourierSalaryStatus());
+                    Get.dialog(updateCourierSalaryStatus(user));
                   },
                   child: CircleAvatar(
                     backgroundColor: kPurpleColor.withOpacity(0.1),
@@ -695,7 +809,19 @@ class CurrierScreen extends GetView<CurrierController> {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTap: (){
-                    Get.dialog(DeleteDialog());
+                    Get.dialog(DeleteDialog(onTap: ()async{
+                      UserController userController = Get.put(UserController());
+                      bool success = await userController.deleteEntity(context, user['_id'], "courier", controller.couriers);
+                      if (success) {
+                        Future.delayed(Duration(milliseconds: 50), () {
+                          if (Get.isDialogOpen ?? false) {
+                            Get.back();
+                          }
+                          Get.back();
+                        });
+                      }
+                    },));
+
                   },
                   child: CircleAvatar(
                     backgroundColor: kRedColor.withOpacity(0.1),

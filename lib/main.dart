@@ -2,12 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:zoodtime_admin/utils/app_strings.dart';
 import 'package:zoodtime_admin/utils/app_theme.dart';
 import 'package:zoodtime_admin/utils/route_generator.dart';
 import 'package:zoodtime_admin/utils/screen_bindings.dart';
 
 void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init();
   runApp(const MyApp(),);
 }
 

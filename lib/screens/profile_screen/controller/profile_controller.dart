@@ -96,7 +96,7 @@ class ProfileController extends GetxController {
       appLogoUrl.value = userSD['profileImageUrl'] ?? '';
 
 
-      // log("appLogoUrl==========================${appLogoUrl.value}");
+      log("appLogoUrl==========================${appLogoUrl.value}");
     }
   }
 

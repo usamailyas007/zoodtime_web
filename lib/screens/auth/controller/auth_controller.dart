@@ -49,17 +49,16 @@ class AuthController extends GetxController {
         showToast(Get.overlayContext!, msg: "Welcome to your account", duration: 2,backColor: kPrimaryColor);
 
       } else {
-        showToast(Get.overlayContext!, msg: response['error'], duration: 2);
+        showToast(Get.overlayContext!, msg: "Invalid credentials", duration: 2);
 
       }
 
     } catch (e) {
-      showToast(Get.overlayContext!, msg: "$e", duration: 2);
+      showToast(Get.overlayContext!, msg: "Invalid Credentials", duration: 2);
     } finally {
       isLoading.value = false;
     }
   }
-
 
   goNext() async {
     var val = await Storage.getLogin();

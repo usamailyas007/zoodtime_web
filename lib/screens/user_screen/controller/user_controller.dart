@@ -33,15 +33,17 @@ class UserController extends GetxController {
     final query = searchQuery.value.trim().toLowerCase();
     List<Map<String, dynamic>> list = users;
 
-    if (selectedAccountType.value == 'active') {
-      list = list
-          .where((u) => (u['status'] ?? '').toString().trim().isNotEmpty)
-          .toList();
-
-    } else if (selectedAccountType.value == 'suspended') {
-      list = list
-          .where((u) => (u['status'] ?? '').toString().trim().isEmpty)
-          .toList();
+    switch (selectedAccountType.value.toLowerCase()) {
+      case 'active':
+        list = list.where((u) => (u['status'] ?? '').toString().toLowerCase() == 'active').toList();
+        break;
+      case 'suspended':
+        list = list.where((u) => (u['status'] ?? '').toString().toLowerCase() == 'suspended').toList();
+        break;
+      case 'all':
+      default:
+      // keep all users
+        break;
     }
 
     if (query.isNotEmpty) {
@@ -60,7 +62,7 @@ class UserController extends GetxController {
     if (list.isEmpty) return [];
 
     int start = (currentPage.value - 1) * itemsPerPage;
-    if (start >= list.length) return []; // ✅ Prevent RangeError
+    if (start >= list.length) return [];
 
     int end = start + itemsPerPage;
     return list.sublist(start, end > list.length ? list.length : end);
@@ -216,6 +218,8 @@ class UserController extends GetxController {
 
       if (response != null && response['users'] != null) {
         users.value = List<Map<String, dynamic>>.from(response['users']);
+
+        log("users.value=====================${users.value}");
 
         currentPage.value = response['page'] ?? 1;
         totalPages.value = response['totalPages'] ?? 1;

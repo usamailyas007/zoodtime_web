@@ -286,7 +286,6 @@ class UserScreen extends GetView<UserController> {
                                               onSelected: (value) {
                                                 controller.selectedAccountType.value = value;
                                                 controller.currentPage.value = 1;
-                                                // controller.getBusinesses(context, page: 1);
                                                 },
                                               offset: Offset(0, 40),
                                               shape: RoundedRectangleBorder(
@@ -294,8 +293,8 @@ class UserScreen extends GetView<UserController> {
                                               ),
                                               color: kWhiteColor,
                                               itemBuilder: (context) => [
-                                                PopupMenuItem(value: 'active', child: Text('Active',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
-                                                PopupMenuItem(value: 'suspended', child: Text('Suspended',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                                PopupMenuItem(value: 'active', child: Text('active',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                                PopupMenuItem(value: 'suspended', child: Text('suspended',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
                                                 PopupMenuItem(value: 'All', child: Text('All',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
                                               ],
                                               child: Row(
@@ -484,7 +483,7 @@ class UserScreen extends GetView<UserController> {
                                           ),
                                         ),
                                       ],
-                                      rows: controller.users.asMap().entries.map((entry) {
+                                      rows: controller.filteredUsers.asMap().entries.map((entry) {
                                         final i = entry.key;
                                         final user = entry.value;
 

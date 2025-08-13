@@ -17,6 +17,7 @@ class JobController extends GetxController {
   }
 
   var jobs = <Map<String, dynamic>>[].obs;
+
   var couriersName = <String>[].obs;
 
   var currentPage = 1.obs;
@@ -71,19 +72,22 @@ class JobController extends GetxController {
   void goToPage(int page, context) {
     if (page >= 1 && page <= totalPages.value) {
       currentPage.value = page;
+      print("currentPage.value====================${currentPage.value}");
       getAllJobs(context, page: page);
     }
   }
 
   void goToNextPage(context) {
     if (currentPage.value < totalPages.value) {
-      getAllJobs(context, page: currentPage.value + 1);
+      currentPage.value++;
+      getAllJobs(context, page: currentPage.value);
     }
   }
 
   void goToPreviousPage(context) {
     if (currentPage.value > 1) {
-      getAllJobs(context, page: currentPage.value - 1);
+      currentPage.value--;
+      getAllJobs(context, page: currentPage.value);
     }
   }
 
@@ -95,11 +99,8 @@ class JobController extends GetxController {
       if (response != null && response['message'] == "Orders fetched successfully") {
         List<Map<String, dynamic>> fetched = List<Map<String, dynamic>>.from(response['orders']);
 
-
         jobs.value = fetched.toList();
-
-
-        currentPage.value = response['page'] ?? 1;
+        // currentPage.value = response['page'] ?? 1;
         totalPages.value = response['totalPages'] ?? 1;
 
       } else {
@@ -127,6 +128,7 @@ class JobController extends GetxController {
             .toSet()
             .toList();
 
+        log("couriersName.value==========${couriersName.value}");
       } else {
         showToast(context, msg: response?['message'] ?? "Failed to fetch getAllJobs", duration: 2);
       }
@@ -181,7 +183,6 @@ class JobController extends GetxController {
     super.onInit();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getAllJobs(Get.context, page: 1);
-      getAllCouriersName(Get.context,);
     });
   }
 

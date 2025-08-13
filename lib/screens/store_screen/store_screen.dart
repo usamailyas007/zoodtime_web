@@ -8,6 +8,7 @@ import '../../../utils/app_images.dart';
 import '../../../utils/app_styles.dart';
 import '../../custom_widgets/custom_button.dart';
 import '../../custom_widgets/custom_dialog.dart';
+import '../../custom_widgets/custom_header.dart';
 import '../../custom_widgets/custom_pagination.dart';
 import '../../custom_widgets/custom_textfield.dart';
 import '../../utils/app_strings.dart';
@@ -241,38 +242,7 @@ class StoreScreen extends GetView<StoreController> {
                     children: [
                       Column(
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                kManageStore,
-                                style: AppStyles.blackTextStyle()
-                                    .copyWith(
-                                  fontSize: 30.sp,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              Spacer(),
-                              Container(
-                                height: 32,
-                                width: 32,
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: kBorderColor,
-                                        width: 0.6
-                                    )
-                                ),
-                                child: Center(child: SvgPicture.asset(kNotiIcon,height: 15,width: 15,)),
-                              ),
-                              SizedBox(width: 12.w,),
-                              SizedBox(
-                                height: 50,
-                                width: 50,
-                                child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: Image.asset(kPersonImage,fit: BoxFit.cover,)),
-                              )
-                            ],
-                          ),
+                          CustomHeader(title: kManageStore,),
                           SizedBox(height: 32.h),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,

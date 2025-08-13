@@ -11,6 +11,7 @@ import '../../../utils/app_images.dart';
 import '../../../utils/app_styles.dart';
 import '../../custom_widgets/custom_button.dart';
 import '../../custom_widgets/custom_dialog.dart';
+import '../../custom_widgets/custom_header.dart';
 import '../../custom_widgets/custom_pagination.dart';
 import '../../custom_widgets/custom_textfield.dart';
 import '../../custom_widgets/field_container.dart';
@@ -96,7 +97,7 @@ class UserScreen extends GetView<UserController> {
                   },width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
                   Obx(() => CustomButton(title: "Update Now", onTap: ()async{
 
-                    bool success = await controller.updateStatus(Get.context, id, "company", list, controller.selectedStatus.value ?? '');
+                    bool success = await controller.updateStatus(Get.context, id, "user", list, controller.selectedStatus.value ?? '');
                     if (success) {
                       Future.delayed(Duration(milliseconds: 50), () {
                         // if (Get.isDialogOpen ?? false) {
@@ -114,100 +115,100 @@ class UserScreen extends GetView<UserController> {
     );
   }
 
-  addBusiness(context){
-    return CustomDialog(
-        width: 450.w,
-        content: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                        onTap: (){
-                          Get.back();
-                        },
-                        child: Icon(Icons.close,color: kSecondaryColor,size: 20,)),
-                  )
-                ],
-              ),
-              SizedBox(height: 32.h,),
-              Text("Name",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400)),
-              SizedBox(height: 6.h,),
-              SizedBox(
-                height: 40,
-                child: CustomTextField(
-                  hintText: "ABC",
-                  controller: controller.nameController,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
-                ),
-              ),
-              SizedBox(height: 14.h,),
-              Text("Company Name",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400)),
-              SizedBox(height: 6.h,),
-              SizedBox(
-                height: 40,
-                child: CustomTextField(
-                  hintText: "ABC Delta",
-                  controller: controller.companyNameController,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
-                ),
-              ),
-              SizedBox(height: 14.h,),
-              Text("Tax ID",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400)),
-              SizedBox(height: 6.h,),
-              SizedBox(
-                height: 40,
-                child: CustomTextField(
-                  hintText: "00000",
-                  controller: controller.taxIdController,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
-                ),
-              ),
-              SizedBox(height: 14.h,),
-              Text("Phone Number",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400)),
-              SizedBox(height: 6.h,),
-              SizedBox(
-                height: 40,
-                child: CustomTextField(
-                  hintText: "00000",
-                  controller: controller.phNumberController,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
-                ),
-              ),
-              SizedBox(height: 32.h,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomButton(title: "Cancel", onTap: (){
-                    Get.back();
-                    controller.clearFields();
-                  },width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
-                  Obx(() => CustomButton(title: "Add Business", onTap: ()async{
-
-                    bool success = await controller.addBusiness(Get.context);
-                    if (success) {
-                      Future.delayed(Duration(milliseconds: 50), () {
-                        if (Get.isDialogOpen ?? false) {
-                          Get.back();
-                        }
-                        Get.back();
-                        // Get.toNamed(kUserScreenRoute);
-                      });
-                    }
-                  },width: 130.w,height: 40.h,textSize: 14.sp,isLoading: controller.isLoading.value,),)
-                ],
-              ),
-            ],
-          ),
-        )
-    );
-  }
+  // addBusiness(context){
+  //   return CustomDialog(
+  //       width: 450.w,
+  //       content: Padding(
+  //         padding: const EdgeInsets.all(24),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.end,
+  //               children: [
+  //                 MouseRegion(
+  //                   cursor: SystemMouseCursors.click,
+  //                   child: GestureDetector(
+  //                       onTap: (){
+  //                         Get.back();
+  //                       },
+  //                       child: Icon(Icons.close,color: kSecondaryColor,size: 20,)),
+  //                 )
+  //               ],
+  //             ),
+  //             SizedBox(height: 32.h,),
+  //             Text("Name",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400)),
+  //             SizedBox(height: 6.h,),
+  //             SizedBox(
+  //               height: 40,
+  //               child: CustomTextField(
+  //                 hintText: "ABC",
+  //                 controller: controller.nameController,
+  //                 contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
+  //               ),
+  //             ),
+  //             SizedBox(height: 14.h,),
+  //             Text("Company Name",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400)),
+  //             SizedBox(height: 6.h,),
+  //             SizedBox(
+  //               height: 40,
+  //               child: CustomTextField(
+  //                 hintText: "ABC Delta",
+  //                 controller: controller.companyNameController,
+  //                 contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
+  //               ),
+  //             ),
+  //             SizedBox(height: 14.h,),
+  //             Text("Tax ID",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400)),
+  //             SizedBox(height: 6.h,),
+  //             SizedBox(
+  //               height: 40,
+  //               child: CustomTextField(
+  //                 hintText: "00000",
+  //                 controller: controller.taxIdController,
+  //                 contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
+  //               ),
+  //             ),
+  //             SizedBox(height: 14.h,),
+  //             Text("Phone Number",style: AppStyles.blackTextStyle().copyWith(fontWeight: FontWeight.w400)),
+  //             SizedBox(height: 6.h,),
+  //             SizedBox(
+  //               height: 40,
+  //               child: CustomTextField(
+  //                 hintText: "00000",
+  //                 controller: controller.phNumberController,
+  //                 contentPadding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 8.h),
+  //               ),
+  //             ),
+  //             SizedBox(height: 32.h,),
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //               children: [
+  //                 CustomButton(title: "Cancel", onTap: (){
+  //                   Get.back();
+  //                   controller.clearFields();
+  //                 },width: 78.w,height: 40.h,color: kWhiteColor,borderColor: kBorderColor3,textSize: 14.sp,textColor: kSecondaryColor,),
+  //                 Obx(() => CustomButton(title: "Add Business", onTap: ()async{
+  //
+  //                   bool success = await controller.addBusiness(Get.context);
+  //                   if (success) {
+  //                     Future.delayed(Duration(milliseconds: 50), () {
+  //                       if (Get.isDialogOpen ?? false) {
+  //                         Get.back();
+  //                       }
+  //                       Get.back();
+  //                       // Get.toNamed(kUserScreenRoute);
+  //                     });
+  //                   }
+  //                 },width: 130.w,height: 40.h,textSize: 14.sp,isLoading: controller.isLoading.value,),)
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       )
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -234,38 +235,7 @@ class UserScreen extends GetView<UserController> {
                       children: [
                         Column(
                           children: [
-                            Row(
-                              children: [
-                                Text(
-                                  kWelcomeAdmin,
-                                  style: AppStyles.blackTextStyle()
-                                      .copyWith(
-                                    fontSize: 30.sp,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                Spacer(),
-                                Container(
-                                  height: 32,
-                                  width: 32,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: kBorderColor,
-                                          width: 0.6
-                                      )
-                                  ),
-                                  child: Center(child: SvgPicture.asset(kNotiIcon,height: 15,width: 15,)),
-                                ),
-                                SizedBox(width: 12.w,),
-                                SizedBox(
-                                  height: 50,
-                                  width: 50,
-                                  child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(100),
-                                      child: Image.asset(kPersonImage,fit: BoxFit.cover,)),
-                                )
-                              ],
-                            ),
+                            CustomHeader(title: kWelcomeAdmin,),
                             SizedBox(height: 32.h),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -324,8 +294,8 @@ class UserScreen extends GetView<UserController> {
                                               ),
                                               color: kWhiteColor,
                                               itemBuilder: (context) => [
-                                                PopupMenuItem(value: 'Individual', child: Text('Individual',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
-                                                PopupMenuItem(value: 'Business', child: Text('Business',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                                PopupMenuItem(value: 'active', child: Text('Active',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
+                                                PopupMenuItem(value: 'suspended', child: Text('Suspended',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
                                                 PopupMenuItem(value: 'All', child: Text('All',style: AppStyles.blackTextStyle().copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400),)),
                                               ],
                                               child: Row(
@@ -347,9 +317,9 @@ class UserScreen extends GetView<UserController> {
                                     ],
                                   ),
                                 ),
-                                CustomButton(title: "+ Add Business", onTap: (){
-                                  Get.dialog(addBusiness(context));
-                                },height: 40.h,width: 150.w,textSize: 14.sp,)
+                                // CustomButton(title: "+ Add Business", onTap: (){
+                                //   Get.dialog(addBusiness(context));
+                                // },height: 40.h,width: 150.w,textSize: 14.sp,)
                               ],
                             ),
 
@@ -365,7 +335,7 @@ class UserScreen extends GetView<UserController> {
                                     return Center(
                                       child: Padding(
                                         padding: EdgeInsets.all(20),
-                                        child: Text("No Businesses Found"),
+                                        child: Text("No User Found"),
                                       ),
                                     );
                                   }
@@ -429,42 +399,42 @@ class UserScreen extends GetView<UserController> {
                                             ),
                                           ),
                                         ),
+                                        // DataColumn(
+                                        //   label: Flexible(
+                                        //     child: Text(
+                                        //       "Company Name",
+                                        //       overflow: TextOverflow.ellipsis,
+                                        //       maxLines: 1,
+                                        //       style:
+                                        //       AppStyles.blackTextStyle()
+                                        //           .copyWith(
+                                        //           fontSize: 14.sp,
+                                        //           fontWeight: FontWeight.w600,
+                                        //           color: kBlueColor
+                                        //       ),
+                                        //     ),
+                                        //   ),
+                                        // ),
+                                        // DataColumn(
+                                        //   label: Flexible(
+                                        //     child: Text(
+                                        //       "Tax ID",
+                                        //       overflow: TextOverflow.ellipsis,
+                                        //       maxLines: 1,
+                                        //       style:
+                                        //       AppStyles.blackTextStyle()
+                                        //           .copyWith(
+                                        //           fontSize: 14.sp,
+                                        //           fontWeight: FontWeight.w600,
+                                        //           color: kBlueColor
+                                        //       ),
+                                        //     ),
+                                        //   ),
+                                        // ),
                                         DataColumn(
                                           label: Flexible(
                                             child: Text(
-                                              "Company Name",
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
-                                              style:
-                                              AppStyles.blackTextStyle()
-                                                  .copyWith(
-                                                  fontSize: 14.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: kBlueColor
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        DataColumn(
-                                          label: Flexible(
-                                            child: Text(
-                                              "Tax ID",
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
-                                              style:
-                                              AppStyles.blackTextStyle()
-                                                  .copyWith(
-                                                  fontSize: 14.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: kBlueColor
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        DataColumn(
-                                          label: Flexible(
-                                            child: Text(
-                                              "Account Type",
+                                              "Role",
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 1,
                                               style:
@@ -518,20 +488,16 @@ class UserScreen extends GetView<UserController> {
                                         final i = entry.key;
                                         final user = entry.value;
 
-                                        String accountType = (user['companyName'] != null && user['companyName'].toString().trim().isNotEmpty)
-                                            ? 'Business'
-                                            : 'Individual';
-
-                                        log("user Data ===========================$user");
+                                        // log("user Data ===========================$user");
 
                                         return _buildDataRow(
                                           i,
                                           ((controller.currentPage.value - 1) * controller.itemsPerPage + i + 1).toString(),
-                                          user['name'] ?? '',
+                                          user['name'] ?? '--',
                                           user['phone'] ?? '',
-                                          user['companyName'] ?? '',
-                                          user['taxId'] ?? '',
-                                          accountType,
+                                          // user['companyName'] ?? '--',
+                                          // user['taxId'] ?? '--',
+                                          user['role'],
                                           user['status'] ?? 'Active',
                                           user,
                                           context,
@@ -543,7 +509,6 @@ class UserScreen extends GetView<UserController> {
                                 }),
                               ],
                             ),
-
                             SizedBox(height: 35.h,),
                             Obx(() {
                               if (controller.filteredUsers.isEmpty) {
@@ -578,7 +543,7 @@ class UserScreen extends GetView<UserController> {
     );
   }
 
-  DataRow _buildDataRow(int i,String id, String name, String phone ,String cName,String taxId,String acType, String status, Map<String, dynamic> user,context) {
+  DataRow _buildDataRow(int i,String id, String name, String phone ,String acType, String status, Map<String, dynamic> user,context) {
     return DataRow(
       color: WidgetStateProperty.all(Colors.transparent),
       cells: [
@@ -601,18 +566,18 @@ class UserScreen extends GetView<UserController> {
           style: AppStyles.blackTextStyle()
               .copyWith(fontSize: 12.sp, fontWeight: FontWeight.w400),
         )),
-        DataCell(Text(
-          cName,
-          textAlign: TextAlign.center,
-          style: AppStyles.blackTextStyle()
-              .copyWith(fontSize: 12.sp, fontWeight: FontWeight.w400),
-        )),
-        DataCell(Text(
-          taxId,
-          textAlign: TextAlign.center,
-          style: AppStyles.blackTextStyle()
-              .copyWith(fontSize: 12.sp, fontWeight: FontWeight.w400),
-        )),
+        // DataCell(Text(
+        //   cName,
+        //   textAlign: TextAlign.center,
+        //   style: AppStyles.blackTextStyle()
+        //       .copyWith(fontSize: 12.sp, fontWeight: FontWeight.w400),
+        // )),
+        // DataCell(Text(
+        //   taxId,
+        //   textAlign: TextAlign.center,
+        //   style: AppStyles.blackTextStyle()
+        //       .copyWith(fontSize: 12.sp, fontWeight: FontWeight.w400),
+        // )),
         DataCell(Text(
           acType,
           textAlign: TextAlign.center,

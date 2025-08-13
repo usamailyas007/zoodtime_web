@@ -51,36 +51,39 @@ class ProfileScreen extends GetView<ProfileController> {
   }
 
   Widget profileImageWidget(String? imageUrl) {
-    if (kIsWeb) {
+    // if (kIsWeb) {
+    //   return ClipRRect(
+    //     borderRadius: BorderRadius.circular(12),
+    //     child: Image.network(
+    //       imageUrl ?? '',
+    //       fit: BoxFit.cover,
+    //       width: double.infinity,
+    //       height: double.infinity,
+    //       loadingBuilder: (context, child, loadingProgress) {
+    //         if (loadingProgress == null) return child;
+    //         return Center(child: CircularProgressIndicator());
+    //       },
+    //       errorBuilder: (context, error, stackTrace) {
+    //         debugPrint('Image load error (web): $error');
+    //         return _uploadPlaceholder();
+    //       },
+    //     ),
+    //   );
+    // } else {
       return ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Image.network(
-          imageUrl ?? '',
+        child: CachedNetworkImage(
+          imageUrl: imageUrl ?? '',
+          cacheManager: Configs.customCacheManager,
           fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Center(child: CircularProgressIndicator());
-          },
-          errorBuilder: (context, error, stackTrace) {
-            debugPrint('Image load error (web): $error');
+          placeholder: (context, url) => Center(child: CircularProgressIndicator(color: kPrimaryColor)),
+          errorWidget: (context, url, error) {
+            debugPrint("Image load error: $error");
             return _uploadPlaceholder();
           },
         ),
       );
-    } else {
-      return CachedNetworkImage(
-        imageUrl: imageUrl ?? '',
-        cacheManager: Configs.customCacheManager,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Center(child: CircularProgressIndicator(color: kPrimaryColor)),
-        errorWidget: (context, url, error) {
-          debugPrint("Image load error: $error");
-          return _uploadPlaceholder();
-        },
-      );
-    }
+    // }
   }
 
   Widget _uploadPlaceholder() {
@@ -210,13 +213,16 @@ class ProfileScreen extends GetView<ProfileController> {
                                                   imageBytes != null
                                                       ? Stack(
                                                         children: [
-                                                          Image.memory(
-                                                            imageBytes,
-                                                            fit: BoxFit.cover,
-                                                            width:
-                                                                double.infinity,
-                                                            height:
-                                                                double.infinity,
+                                                          ClipRRect(
+                                                            borderRadius: BorderRadius.circular(12),
+                                                            child: Image.memory(
+                                                              imageBytes,
+                                                              fit: BoxFit.cover,
+                                                              width:
+                                                                  double.infinity,
+                                                              height:
+                                                                  double.infinity,
+                                                            ),
                                                           ),
                                                           Padding(
                                                             padding:

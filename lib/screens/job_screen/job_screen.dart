@@ -8,6 +8,7 @@ import '../../../utils/app_images.dart';
 import '../../../utils/app_styles.dart';
 import '../../custom_widgets/custom_button.dart';
 import '../../custom_widgets/custom_dialog.dart';
+import '../../custom_widgets/custom_header.dart';
 import '../../custom_widgets/custom_pagination.dart';
 import '../../custom_widgets/delete_dialog.dart';
 import '../../utils/app_strings.dart';
@@ -15,8 +16,16 @@ import '../sidemenu/sidemenu.dart';
 import '../user_screen/controller/user_controller.dart';
 import 'controller/job_controller.dart';
 
-class JobScreen extends GetView<JobController> {
+
+class JobScreen extends StatefulWidget {
   const JobScreen({super.key});
+
+  @override
+  State<JobScreen> createState() => _JobScreenState();
+}
+
+class _JobScreenState extends State<JobScreen> {
+  final JobController controller = Get.find<JobController>();
 
   customRow(title,detail){
     return Row(
@@ -219,6 +228,13 @@ class JobScreen extends GetView<JobController> {
     );
   }
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    controller.getAllCouriersName(Get.context,);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -243,38 +259,7 @@ class JobScreen extends GetView<JobController> {
                     children: [
                       Column(
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                kManageJobs,
-                                style: AppStyles.blackTextStyle()
-                                    .copyWith(
-                                  fontSize: 30.sp,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              Spacer(),
-                              Container(
-                                height: 32,
-                                width: 32,
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: kBorderColor,
-                                        width: 0.6
-                                    )
-                                ),
-                                child: Center(child: SvgPicture.asset(kNotiIcon,height: 15,width: 15,)),
-                              ),
-                              SizedBox(width: 12.w,),
-                              SizedBox(
-                                height: 50,
-                                width: 50,
-                                child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: Image.asset(kPersonImage,fit: BoxFit.cover,)),
-                              )
-                            ],
-                          ),
+                          CustomHeader(title: kManageJobs,),
                           SizedBox(height: 32.h),
                           Row(
                             children: [
@@ -323,7 +308,7 @@ class JobScreen extends GetView<JobController> {
                                           Obx(() => PopupMenuButton<String>(
                                             onSelected: (value) {
                                               controller.selectedStatus.value = value;
-                                              controller.currentPage.value = 1;                                              },
+                                              controller.currentPage.value = 1;},
                                             offset: Offset(0, 40),
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(10),
@@ -534,7 +519,7 @@ class JobScreen extends GetView<JobController> {
                                     ),
                                   ),
                                 ],
-                                rows: controller.pagedJobs.asMap().entries.map((entry) {
+                                rows: controller.filteredJobs.asMap().entries.map((entry) {
                                   final i = entry.key;
                                   final jobs = entry.value;
                                   return _buildDataRow(
@@ -558,6 +543,7 @@ class JobScreen extends GetView<JobController> {
                             );
                           }),
                           SizedBox(height: 35.h,),
+
                           Obx(() {
 
                             if (controller.filteredJobs.isEmpty) {
@@ -585,7 +571,6 @@ class JobScreen extends GetView<JobController> {
                 ),
               ),
             ),
-
           ],
         ),
       ),

@@ -33,14 +33,14 @@ class UserController extends GetxController {
     final query = searchQuery.value.trim().toLowerCase();
     List<Map<String, dynamic>> list = users;
 
-    if (selectedAccountType.value == 'Business') {
+    if (selectedAccountType.value == 'active') {
       list = list
-          .where((u) => (u['companyName'] ?? '').toString().trim().isNotEmpty)
+          .where((u) => (u['status'] ?? '').toString().trim().isNotEmpty)
           .toList();
 
-    } else if (selectedAccountType.value == 'Individual') {
+    } else if (selectedAccountType.value == 'suspended') {
       list = list
-          .where((u) => (u['companyName'] ?? '').toString().trim().isEmpty)
+          .where((u) => (u['status'] ?? '').toString().trim().isEmpty)
           .toList();
     }
 
@@ -77,19 +77,19 @@ class UserController extends GetxController {
 
   void goToPage(int page, context) {
     if (page >= 1 && page <= totalPages.value) {
-      getBusinesses(context, page: page);
+      getUsers(context, page: page);
     }
   }
 
   void goToNextPage(context) {
     if (currentPage.value < totalPages.value) {
-      getBusinesses(context, page: currentPage.value + 1);
+      getUsers(context, page: currentPage.value + 1);
     }
   }
 
   void goToPreviousPage(context) {
     if (currentPage.value > 1) {
-      getBusinesses(context, page: currentPage.value - 1);
+      getUsers(context, page: currentPage.value - 1);
     }
   }
 
@@ -209,19 +209,19 @@ class UserController extends GetxController {
     }
   }
 
-  getBusinesses(context, {int page = 1}) async {
+  getUsers(context, {int page = 1}) async {
     isLoading1.value = true;
     try {
       var response = await userServices.getCompanies(page: page);
 
-      if (response != null && response['companies'] != null) {
-        users.value = List<Map<String, dynamic>>.from(response['companies']);
+      if (response != null && response['users'] != null) {
+        users.value = List<Map<String, dynamic>>.from(response['users']);
 
         currentPage.value = response['page'] ?? 1;
         totalPages.value = response['totalPages'] ?? 1;
 
       } else {
-        showToast(context, msg: response?['message'] ?? "Failed to fetch businesses", duration: 2);
+        showToast(context, msg: response?['message'] ?? "Failed to fetch Users", duration: 2);
       }
     } catch (e) {
       showToast(context, msg: "Error fetching businesses", duration: 2);
@@ -234,7 +234,7 @@ class UserController extends GetxController {
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      getBusinesses(Get.context, page: 1);
+      getUsers(Get.context, page: 1);
     });
   }
 

@@ -84,9 +84,7 @@ class CustomPagination extends StatelessWidget {
             ),
           );
         }),
-
         const SizedBox(width: 18),
-
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(

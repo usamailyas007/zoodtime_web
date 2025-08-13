@@ -32,9 +32,14 @@ class UserServices {
     );
   }
 
+  // Future<dynamic> getCompanies({int page = 1}) async {
+  //   return await req.get(
+  //     '${Configs.baseUrl}/api/admin/getAllCompanies?page=$page',
+  //   );
+  // }
   Future<dynamic> getCompanies({int page = 1}) async {
     return await req.get(
-      '${Configs.baseUrl}/api/admin/getAllCompanies?page=$page',
+      '${Configs.baseUrl}/api/admin/getAllUsers?page=$page',
     );
   }
 
